@@ -19,14 +19,14 @@ interface Roadmap {
 }
 
 interface Opportunity {
-  id: string;
+  id?: string;
   title: string;
   provider: string;
   category: string;
 }
 
 const Profile = () => {
-  const [profile, setProfile] = useState<UserProfile | null>(null);
+  const [_profile, setProfile] = useState<UserProfile | null>(null);
   const [roadmaps, setRoadmaps] = useState<Roadmap[]>([]);
   const [opportunities, setOpportunities] = useState<Opportunity[]>([]);
   const [loading, setLoading] = useState(true);

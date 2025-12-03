@@ -2,7 +2,6 @@ import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
 import {
-  Home,
   Target,
   Map,
   MessageCircle,
@@ -11,7 +10,6 @@ import {
   LogOut,
   Menu,
   X,
-  Globe,
 } from 'lucide-react';
 import { useState } from 'react';
 import LanguageSelector from './LanguageSelector';

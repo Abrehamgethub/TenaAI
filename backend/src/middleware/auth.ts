@@ -65,7 +65,7 @@ export const authMiddleware = async (
  */
 export const optionalAuthMiddleware = async (
   req: AuthenticatedRequest,
-  res: Response,
+  _res: Response,
   next: NextFunction
 ): Promise<void> => {
   try {

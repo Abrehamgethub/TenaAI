@@ -3,7 +3,7 @@ import { useLanguage } from '../context/LanguageContext';
 import { opportunitiesApi } from '../api';
 import OpportunityCard from '../components/OpportunityCard';
 import LoadingSpinner from '../components/LoadingSpinner';
-import { Briefcase, Search, Loader2, Filter } from 'lucide-react';
+import { Briefcase, Search, Loader2 } from 'lucide-react';
 
 interface Opportunity {
   id?: string;

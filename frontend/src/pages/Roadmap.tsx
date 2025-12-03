@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '../context/LanguageContext';
 import RoadmapStageCard from '../components/RoadmapStageCard';
 import LoadingSpinner from '../components/LoadingSpinner';
-import { Map, Save, ArrowLeft, CheckCircle } from 'lucide-react';
+import { Map, ArrowLeft, CheckCircle } from 'lucide-react';
 
 interface RoadmapStage {
   title: string;
