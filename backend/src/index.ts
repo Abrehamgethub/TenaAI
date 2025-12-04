@@ -20,6 +20,9 @@ try {
   logger.error('Failed to initialize Firebase, continuing without it:', error);
 }
 
+// Trust proxy (required for Cloud Run)
+app.set('trust proxy', 1);
+
 // Security middleware
 app.use(helmet());
 

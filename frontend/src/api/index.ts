@@ -209,10 +209,212 @@ export const profileApi = {
   },
 };
 
+// ==================== Analytics API ====================
+
+export const analyticsApi = {
+  /**
+   * Get user analytics dashboard
+   */
+  get: async (): Promise<ApiResponse<AnalyticsData>> => {
+    const response = await apiClient.get('/analytics');
+    return response.data;
+  },
+
+  /**
+   * Get learning streak
+   */
+  getStreak: async (): Promise<ApiResponse<{ streak: number }>> => {
+    const response = await apiClient.get('/analytics/streak');
+    return response.data;
+  },
+
+  /**
+   * Record activity
+   */
+  recordActivity: async (activity: {
+    tasksCompleted?: number;
+    quizzesTaken?: number;
+    conceptsLearned?: number;
+    timeSpent?: number;
+  }): Promise<ApiResponse<void>> => {
+    const response = await apiClient.post('/analytics/activity', activity);
+    return response.data;
+  },
+};
+
+// ==================== Quiz API ====================
+
+export const quizApi = {
+  /**
+   * Generate quiz questions
+   */
+  generate: async (
+    topic: string,
+    difficulty?: 'easy' | 'medium' | 'hard',
+    count?: number,
+    language?: string
+  ): Promise<ApiResponse<{ sessionId?: string; questions: QuizQuestion[] }>> => {
+    const response = await apiClient.post('/quiz/generate', {
+      topic,
+      difficulty,
+      count,
+      language,
+    });
+    return response.data;
+  },
+
+  /**
+   * Grade quiz answers
+   */
+  grade: async (
+    answers: Record<string, string>,
+    questions?: QuizQuestion[],
+    sessionId?: string,
+    language?: string
+  ): Promise<ApiResponse<QuizGradeResult>> => {
+    const response = await apiClient.post('/quiz/grade', {
+      answers,
+      questions,
+      sessionId,
+      language,
+    });
+    return response.data;
+  },
+
+  /**
+   * Get quiz history
+   */
+  getHistory: async (limit?: number): Promise<ApiResponse<QuizHistoryItem[]>> => {
+    const response = await apiClient.get('/quiz/history', { params: { limit } });
+    return response.data;
+  },
+};
+
+// ==================== Daily Plan API ====================
+
+export const dailyPlanApi = {
+  /**
+   * Get or generate today's daily plan
+   */
+  get: async (): Promise<ApiResponse<DailyPlanData>> => {
+    const response = await apiClient.get('/daily-plan');
+    return response.data;
+  },
+
+  /**
+   * Mark task as completed
+   */
+  completeTask: async (taskId: string, date?: string): Promise<ApiResponse<{ tasks: DailyTask[] }>> => {
+    const response = await apiClient.post('/daily-plan/complete', { taskId, date });
+    return response.data;
+  },
+
+  /**
+   * Get plan history
+   */
+  getHistory: async (limit?: number): Promise<ApiResponse<DailyPlanHistory[]>> => {
+    const response = await apiClient.get('/daily-plan/history', { params: { limit } });
+    return response.data;
+  },
+
+  /**
+   * Set career goal
+   */
+  setCareerGoal: async (careerGoal: string, skillLevel: string): Promise<ApiResponse<void>> => {
+    const response = await apiClient.post('/daily-plan/career-goal', { careerGoal, skillLevel });
+    return response.data;
+  },
+};
+
+// Types for new features
+export interface AnalyticsData {
+  userId: string;
+  learningStreak: number;
+  roadmapProgress: number;
+  quizPerformance: Array<{
+    date: string;
+    score: number;
+    totalQuestions: number;
+    category: string;
+  }>;
+  conceptCategories: Array<{
+    category: string;
+    progress: number;
+    questionsAnswered: number;
+    accuracy: number;
+  }>;
+  totalLearningTime: number;
+  skillsConfidenceScore: number;
+  weaknessAreas: string[];
+  strengthAreas: string[];
+  aiInsights: string;
+}
+
+export interface QuizQuestion {
+  id: string;
+  question: string;
+  type: 'multiple_choice' | 'short_answer';
+  options?: string[];
+  correctAnswer?: string;
+  explanation?: string;
+  difficulty?: string;
+  category?: string;
+}
+
+export interface QuizGradeResult {
+  score: number;
+  totalQuestions: number;
+  percentage: number;
+  feedback: Array<{
+    questionId: string;
+    isCorrect: boolean;
+    feedback: string;
+  }>;
+  overallFeedback: string;
+  areasToImprove: string[];
+  strengths: string[];
+}
+
+export interface QuizHistoryItem {
+  id: string;
+  score: number;
+  totalQuestions: number;
+  percentage: number;
+  category: string;
+  createdAt: string;
+}
+
+export interface DailyTask {
+  id: string;
+  title: string;
+  description: string;
+  estimatedTime: number;
+  type: 'learn' | 'practice' | 'review';
+  priority: 'high' | 'medium' | 'low';
+  resources: string[];
+  completed?: boolean;
+}
+
+export interface DailyPlanData {
+  date: string;
+  tasks: DailyTask[];
+  quizQuestions: QuizQuestion[];
+  streak: number;
+}
+
+export interface DailyPlanHistory {
+  date: string;
+  tasksCompleted: number;
+  totalTasks: number;
+}
+
 export default {
   roadmap: roadmapApi,
   tutor: tutorApi,
   opportunities: opportunitiesApi,
   skills: skillsApi,
   profile: profileApi,
+  analytics: analyticsApi,
+  quiz: quizApi,
+  dailyPlan: dailyPlanApi,
 };

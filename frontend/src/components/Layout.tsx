@@ -10,6 +10,8 @@ import {
   LogOut,
   Menu,
   X,
+  BarChart3,
+  Calendar,
 } from 'lucide-react';
 import { useState } from 'react';
 import LanguageSelector from './LanguageSelector';
@@ -24,8 +26,10 @@ const Layout = () => {
   const navItems = [
     { path: '/career-goal', icon: Target, label: t('nav.career') },
     { path: '/roadmap', icon: Map, label: t('nav.roadmap') },
+    { path: '/daily-coach', icon: Calendar, label: 'Daily Coach' },
     { path: '/tutor', icon: MessageCircle, label: t('nav.tutor') },
     { path: '/opportunities', icon: Briefcase, label: t('nav.opportunities') },
+    { path: '/analytics', icon: BarChart3, label: 'Analytics' },
     { path: '/profile', icon: User, label: t('nav.profile') },
   ];
 

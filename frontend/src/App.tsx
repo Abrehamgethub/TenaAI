@@ -13,6 +13,8 @@ import Roadmap from './pages/Roadmap';
 import Tutor from './pages/Tutor';
 import Opportunities from './pages/Opportunities';
 import Profile from './pages/Profile';
+import Analytics from './pages/Analytics';
+import DailyCoach from './pages/DailyCoach';
 
 function App() {
   return (
@@ -64,6 +66,22 @@ function App() {
                 element={
                   <ProtectedRoute>
                     <Profile />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/analytics"
+                element={
+                  <ProtectedRoute>
+                    <Analytics />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/daily-coach"
+                element={
+                  <ProtectedRoute>
+                    <DailyCoach />
                   </ProtectedRoute>
                 }
               />

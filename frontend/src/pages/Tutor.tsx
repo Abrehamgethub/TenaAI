@@ -11,6 +11,7 @@ interface Message {
   role: 'user' | 'assistant';
   content: string;
   timestamp: string;
+  isTyping?: boolean;
 }
 
 const Tutor = () => {

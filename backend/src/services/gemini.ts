@@ -155,6 +155,255 @@ class GeminiService {
       throw new Error('Failed to generate chat response');
     }
   }
+
+  /**
+   * Generate simple text response
+   */
+  async generateText(prompt: string): Promise<string> {
+    try {
+      const result = await this.model.generateContent(prompt);
+      return result.response.text();
+    } catch (error) {
+      logger.error('Error generating text:', error);
+      throw new Error('Failed to generate text');
+    }
+  }
+
+  /**
+   * Detect language from text
+   */
+  async detectLanguage(text: string): Promise<Language> {
+    try {
+      const prompt = `Detect the language of this text and respond with only one of: "en", "am", or "om".
+      Text: "${text}"
+      
+      Respond with only the language code, nothing else.`;
+      
+      const result = await this.model.generateContent(prompt);
+      const detected = result.response.text().trim().toLowerCase();
+      
+      if (detected === 'am' || detected === 'amharic') return 'am';
+      if (detected === 'om' || detected === 'oromo' || detected === 'afan oromo') return 'om';
+      return 'en';
+    } catch (error) {
+      logger.error('Error detecting language:', error);
+      return 'en';
+    }
+  }
+
+  /**
+   * Generate daily learning tasks
+   */
+  async generateDailyPlan(
+    careerGoal: string,
+    completedTopics: string[],
+    skillLevel: string,
+    language: Language = 'en'
+  ): Promise<{
+    tasks: DailyTask[];
+    quizQuestions: QuizQuestion[];
+  }> {
+    try {
+      const languageName = language === 'am' ? 'Amharic' : language === 'om' ? 'Afan Oromo' : 'English';
+      
+      const prompt = `Generate a personalized daily learning plan for someone pursuing ${careerGoal}.
+      Their current skill level: ${skillLevel}
+      Topics they've already completed: ${completedTopics.join(', ') || 'None yet'}
+      
+      Respond in ${languageName}.
+      
+      Return a JSON object with this exact structure:
+      {
+        "tasks": [
+          {
+            "id": "task_1",
+            "title": "Task title",
+            "description": "Brief description",
+            "estimatedTime": 15,
+            "type": "learn|practice|review",
+            "priority": "high|medium|low",
+            "resources": ["resource link or name"]
+          }
+        ],
+        "quizQuestions": [
+          {
+            "id": "q_1",
+            "question": "Question text?",
+            "type": "multiple_choice",
+            "options": ["A", "B", "C", "D"],
+            "correctAnswer": "A",
+            "explanation": "Why this is correct"
+          }
+        ]
+      }
+      
+      Generate 4-6 tasks and 3-5 quiz questions. Make tasks progressive and relevant.`;
+
+      const result = await this.model.generateContent(prompt);
+      return this.parseJsonResponse<{ tasks: DailyTask[]; quizQuestions: QuizQuestion[] }>(
+        result.response.text()
+      );
+    } catch (error) {
+      logger.error('Error generating daily plan:', error);
+      throw new Error('Failed to generate daily plan');
+    }
+  }
+
+  /**
+   * Generate quiz questions for a topic
+   */
+  async generateQuiz(
+    topic: string,
+    difficulty: 'easy' | 'medium' | 'hard',
+    count: number = 5,
+    language: Language = 'en'
+  ): Promise<QuizQuestion[]> {
+    try {
+      const languageName = language === 'am' ? 'Amharic' : language === 'om' ? 'Afan Oromo' : 'English';
+      
+      const prompt = `Generate ${count} ${difficulty} quiz questions about "${topic}".
+      Respond in ${languageName}.
+      
+      Return a JSON array with this structure:
+      [
+        {
+          "id": "q_1",
+          "question": "Question text?",
+          "type": "multiple_choice",
+          "options": ["Option A", "Option B", "Option C", "Option D"],
+          "correctAnswer": "Option A",
+          "explanation": "Explanation of why this is correct",
+          "difficulty": "${difficulty}",
+          "category": "${topic}"
+        }
+      ]
+      
+      Mix multiple choice and short answer questions. Ensure questions test understanding, not just memorization.`;
+
+      const result = await this.model.generateContent(prompt);
+      return this.parseJsonResponse<QuizQuestion[]>(result.response.text());
+    } catch (error) {
+      logger.error('Error generating quiz:', error);
+      throw new Error('Failed to generate quiz');
+    }
+  }
+
+  /**
+   * Grade quiz answers
+   */
+  async gradeQuiz(
+    questions: QuizQuestion[],
+    answers: Record<string, string>,
+    language: Language = 'en'
+  ): Promise<QuizGradeResult> {
+    try {
+      const languageName = language === 'am' ? 'Amharic' : language === 'om' ? 'Afan Oromo' : 'English';
+      
+      const questionsWithAnswers = questions.map(q => ({
+        question: q.question,
+        correctAnswer: q.correctAnswer,
+        userAnswer: answers[q.id] || 'No answer provided',
+        type: q.type,
+      }));
+
+      const prompt = `Grade these quiz answers and provide feedback.
+      Respond in ${languageName}.
+      
+      Questions and Answers:
+      ${JSON.stringify(questionsWithAnswers, null, 2)}
+      
+      Return a JSON object:
+      {
+        "score": number (correct answers count),
+        "totalQuestions": ${questions.length},
+        "percentage": number,
+        "feedback": [
+          {
+            "questionId": "q_1",
+            "isCorrect": boolean,
+            "feedback": "Specific feedback for this answer"
+          }
+        ],
+        "overallFeedback": "Encouraging overall assessment",
+        "areasToImprove": ["area1", "area2"],
+        "strengths": ["strength1"]
+      }`;
+
+      const result = await this.model.generateContent(prompt);
+      return this.parseJsonResponse<QuizGradeResult>(result.response.text());
+    } catch (error) {
+      logger.error('Error grading quiz:', error);
+      throw new Error('Failed to grade quiz');
+    }
+  }
+
+  /**
+   * Explain concept with optional image description
+   */
+  async explainWithImage(
+    concept: string,
+    language: Language = 'en'
+  ): Promise<{ explanation: string; shortExplanation: string; imageDescription: string }> {
+    try {
+      const languageName = language === 'am' ? 'Amharic' : language === 'om' ? 'Afan Oromo' : 'English';
+      
+      const prompt = `Explain the concept "${concept}" in ${languageName}.
+      
+      Return a JSON object:
+      {
+        "explanation": "Detailed explanation (3-4 paragraphs)",
+        "shortExplanation": "Brief explanation (2-3 sentences, suitable for text-to-speech)",
+        "imageDescription": "Detailed description of a diagram that would help visualize this concept. Be specific about shapes, labels, arrows, and layout."
+      }`;
+
+      const result = await this.model.generateContent(prompt);
+      return this.parseJsonResponse<{
+        explanation: string;
+        shortExplanation: string;
+        imageDescription: string;
+      }>(result.response.text());
+    } catch (error) {
+      logger.error('Error explaining concept:', error);
+      throw new Error('Failed to explain concept');
+    }
+  }
+}
+
+// Types for new features
+export interface DailyTask {
+  id: string;
+  title: string;
+  description: string;
+  estimatedTime: number;
+  type: 'learn' | 'practice' | 'review';
+  priority: 'high' | 'medium' | 'low';
+  resources: string[];
+  completed?: boolean;
+}
+
+export interface QuizQuestion {
+  id: string;
+  question: string;
+  type: 'multiple_choice' | 'short_answer';
+  options?: string[];
+  correctAnswer: string;
+  explanation: string;
+  difficulty?: string;
+  category?: string;
+}
+
+export interface QuizGradeResult {
+  score: number;
+  totalQuestions: number;
+  percentage: number;
+  feedback: Array<{
+    questionId: string;
+    isCorrect: boolean;
+    feedback: string;
+  }>;
+  overallFeedback: string;
+  areasToImprove: string[];
+  strengths: string[];
 }
 
 // Export singleton instance
