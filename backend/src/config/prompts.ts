@@ -127,6 +127,17 @@ Bootcamps:
 - 10 Academy: https://www.10academy.org/
 - Moringa School: https://moringaschool.com/
 
+Ethiopian Companies & Organizations:
+- Ethio Telecom: https://www.ethiotelecom.et/career/
+- Commercial Bank of Ethiopia: https://www.combanketh.et/en/career/
+- Ethiopian Airlines: https://www.ethiopianairlines.com/et/about-us/careers
+- Safaricom Ethiopia: https://www.safaricom.et/careers
+- iCog Labs: https://icog-labs.com/careers/
+- Apposit: https://apposit.com/careers/
+- Awash Bank: https://awashbank.com/careers/
+- Ethiopian Investment Holdings: https://eikiholdings.com/careers/
+- Ministry of Innovation and Technology: https://mint.gov.et/
+
 For each opportunity, provide:
 - Title of the program/opportunity (be specific)
 - Provider/Organization name

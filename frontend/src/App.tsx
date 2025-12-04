@@ -12,6 +12,7 @@ import CareerGoal from './pages/CareerGoal';
 import Roadmap from './pages/Roadmap';
 import Tutor from './pages/Tutor';
 import Opportunities from './pages/Opportunities';
+import Mentors from './pages/Mentors';
 import Profile from './pages/Profile';
 import Analytics from './pages/Analytics';
 import DailyCoach from './pages/DailyCoach';
@@ -59,6 +60,14 @@ function App() {
                 element={
                   <ProtectedRoute>
                     <Opportunities />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/mentors"
+                element={
+                  <ProtectedRoute>
+                    <Mentors />
                   </ProtectedRoute>
                 }
               />

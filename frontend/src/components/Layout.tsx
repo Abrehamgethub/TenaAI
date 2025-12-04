@@ -13,6 +13,7 @@ import {
   BarChart3,
   Calendar,
   Brain,
+  Users,
 } from 'lucide-react';
 import { useState } from 'react';
 import LanguageSelector from './LanguageSelector';
@@ -31,6 +32,7 @@ const Layout = () => {
     { path: '/tutor', icon: MessageCircle, label: t('nav.tutor') },
     { path: '/quiz', icon: Brain, label: 'Quiz' },
     { path: '/opportunities', icon: Briefcase, label: t('nav.opportunities') },
+    { path: '/mentors', icon: Users, label: 'Find Mentors' },
     { path: '/analytics', icon: BarChart3, label: 'Analytics' },
     { path: '/profile', icon: User, label: t('nav.profile') },
   ];

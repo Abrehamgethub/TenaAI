@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
-import { ArrowRight, BookOpen, Target, MessageCircle, Briefcase, Sparkles } from 'lucide-react';
+import { ArrowRight, BookOpen, Target, MessageCircle, Briefcase, Sparkles, Volume2, Users } from 'lucide-react';
 
 const Landing = () => {
   const { user } = useAuth();
@@ -10,24 +10,41 @@ const Landing = () => {
   const features = [
     {
       icon: Target,
-      title: 'Career Roadmaps',
-      description: 'Get personalized learning paths tailored to your career goals',
+      title: 'Personalized Career Paths',
+      description: 'AI-generated roadmaps tailored to your career goals and skill level',
     },
     {
       icon: MessageCircle,
-      title: 'AI Tutor',
-      description: 'Learn STEM concepts in Amharic, Oromo, or English',
+      title: 'AI Tutor in Amharic',
+      description: 'Learn complex concepts explained in አማርኛ, Oromiffa, or English',
+    },
+    {
+      icon: Volume2,
+      title: 'Voice-Enabled Learning',
+      description: 'Listen to explanations in Amharic with natural text-to-speech',
+    },
+    {
+      icon: Users,
+      title: 'Ethiopian Mentors',
+      description: 'Connect with experienced tech professionals across Ethiopia',
     },
     {
       icon: Briefcase,
-      title: 'Opportunities',
-      description: 'Discover scholarships, internships, and programs',
+      title: 'Local Opportunities',
+      description: 'Find jobs at Ethiopian companies + global scholarships',
     },
     {
       icon: BookOpen,
-      title: 'Free Resources',
-      description: 'Access curated free learning materials',
+      title: '100% Free Resources',
+      description: 'Access curated free courses, bootcamps, and certifications',
     },
+  ];
+
+  const stats = [
+    { value: 'አማርኛ', label: 'Amharic Voice Support' },
+    { value: '50+', label: 'Ethiopian Tech Mentors' },
+    { value: '100%', label: 'Free to Use' },
+    { value: '24/7', label: 'AI Availability' },
   ];
 
   return (
@@ -72,9 +89,9 @@ const Landing = () => {
 
       {/* Hero Section */}
       <section className="mx-auto max-w-6xl px-4 py-20 text-center">
-        <div className="inline-flex items-center gap-2 rounded-full bg-primary-100 px-4 py-2 text-sm font-medium text-primary-700 mb-6">
+        <div className="inline-flex items-center gap-2 rounded-full bg-green-100 px-4 py-2 text-sm font-medium text-green-700 mb-6">
           <Sparkles className="h-4 w-4" />
-          Powered by AI
+          🇪🇹 Built for Ethiopian Youth
         </div>
         <h1 className="text-4xl font-bold text-gray-900 sm:text-5xl md:text-6xl leading-tight">
           {t('landing.title')}
@@ -82,6 +99,16 @@ const Landing = () => {
         <p className="mt-6 text-lg text-gray-600 max-w-2xl mx-auto">
           {t('landing.subtitle')}
         </p>
+        
+        {/* Language Highlight */}
+        <div className="mt-6 inline-flex items-center gap-3 bg-primary-50 rounded-full px-6 py-3">
+          <Volume2 className="h-5 w-5 text-primary-600" />
+          <span className="text-primary-800 font-medium">
+            Now with <span className="font-bold">Amharic voice</span> support! 
+            <span className="text-primary-600 ml-1">በአማርኛ ይማሩ</span>
+          </span>
+        </div>
+
         <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
           <Link
             to={user ? '/career-goal' : '/register'}
@@ -98,27 +125,26 @@ const Landing = () => {
           </Link>
         </div>
 
-        {/* Hero Image/Illustration Placeholder */}
-        <div className="mt-16 rounded-2xl bg-gradient-to-br from-primary-100 to-primary-200 p-8 shadow-xl">
-          <div className="aspect-video rounded-xl bg-white/50 flex items-center justify-center">
-            <div className="text-center">
-              <div className="flex items-center justify-center gap-4 mb-4">
-                <div className="h-16 w-16 rounded-2xl bg-primary-500 flex items-center justify-center text-white text-2xl font-bold">
-                  T
-                </div>
-              </div>
-              <p className="text-primary-700 font-medium">Your AI Learning Journey Starts Here</p>
+        {/* Stats */}
+        <div className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-4">
+          {stats.map((stat, index) => (
+            <div key={index} className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+              <p className="text-2xl font-bold text-primary-600">{stat.value}</p>
+              <p className="text-sm text-gray-600">{stat.label}</p>
             </div>
-          </div>
+          ))}
         </div>
       </section>
 
       {/* Features Section */}
       <section className="mx-auto max-w-6xl px-4 py-20">
-        <h2 className="text-3xl font-bold text-center text-gray-900 mb-12">
-          Everything you need to succeed
+        <h2 className="text-3xl font-bold text-center text-gray-900 mb-4">
+          Your Complete Learning Companion
         </h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <p className="text-center text-gray-600 mb-12 max-w-2xl mx-auto">
+          From discovering your career path to landing your dream job, TenaAI guides you every step of the way
+        </p>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {features.map((feature, index) => (
             <div
               key={index}
