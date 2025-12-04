@@ -44,6 +44,42 @@ export const useTextToSpeech = (lang: string = 'en-US'): UseTextToSpeechReturn =
     };
   }, [isSupported, lang]);
 
+  // CRITICAL: Stop speech on unmount or page navigation
+  useEffect(() => {
+    if (!isSupported) return;
+
+    // Stop speech when component unmounts
+    return () => {
+      window.speechSynthesis.cancel();
+      setIsSpeaking(false);
+    };
+  }, [isSupported]);
+
+  // Also stop on page visibility change (tab switch) and before unload
+  useEffect(() => {
+    if (!isSupported) return;
+
+    const handleVisibilityChange = () => {
+      if (document.hidden) {
+        window.speechSynthesis.cancel();
+        setIsSpeaking(false);
+      }
+    };
+
+    const handleBeforeUnload = () => {
+      window.speechSynthesis.cancel();
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('beforeunload', handleBeforeUnload);
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+      window.speechSynthesis.cancel();
+    };
+  }, [isSupported]);
+
   const speak = useCallback((text: string) => {
     if (!isSupported || !text) return;
 

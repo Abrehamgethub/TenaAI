@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import { useLanguage } from '../context/LanguageContext';
 import { tutorApi } from '../api';
 import ChatBubble from '../components/ChatBubble';
@@ -41,6 +42,13 @@ const Tutor = () => {
     isSpeaking,
     isSupported: ttsSupported,
   } = useTextToSpeech(language);
+
+  const location = useLocation();
+
+  // Stop speech when route changes
+  useEffect(() => {
+    stopSpeaking();
+  }, [location.pathname, stopSpeaking]);
 
   // Update input when transcript changes
   useEffect(() => {
