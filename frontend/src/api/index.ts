@@ -433,6 +433,29 @@ export interface DailyPlanHistory {
   totalTasks: number;
 }
 
+// ==================== TTS API ====================
+
+export const ttsApi = {
+  /**
+   * Synthesize text to speech (for Amharic)
+   */
+  synthesize: async (
+    text: string,
+    language: 'am' | 'en' | 'om'
+  ): Promise<ApiResponse<{ audioContent: string; format: string; language: string }>> => {
+    const response = await apiClient.post('/tts', { text, language });
+    return response.data;
+  },
+
+  /**
+   * Get supported TTS languages
+   */
+  getSupportedLanguages: async (): Promise<ApiResponse<{ languages: Array<{ code: string; name: string; supported: boolean }> }>> => {
+    const response = await apiClient.get('/tts/languages');
+    return response.data;
+  },
+};
+
 export default {
   roadmap: roadmapApi,
   tutor: tutorApi,
@@ -442,4 +465,5 @@ export default {
   analytics: analyticsApi,
   quiz: quizApi,
   dailyPlan: dailyPlanApi,
+  tts: ttsApi,
 };
