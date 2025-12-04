@@ -15,6 +15,7 @@ import Opportunities from './pages/Opportunities';
 import Profile from './pages/Profile';
 import Analytics from './pages/Analytics';
 import DailyCoach from './pages/DailyCoach';
+import Quiz from './pages/Quiz';
 
 function App() {
   return (
@@ -82,6 +83,14 @@ function App() {
                 element={
                   <ProtectedRoute>
                     <DailyCoach />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/quiz"
+                element={
+                  <ProtectedRoute>
+                    <Quiz />
                   </ProtectedRoute>
                 }
               />

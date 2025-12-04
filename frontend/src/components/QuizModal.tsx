@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useLanguage } from '../context/LanguageContext';
 import { quizApi, QuizQuestion, QuizGradeResult } from '../api';
 import {
@@ -20,18 +20,32 @@ interface QuizModalProps {
   sessionId?: string;
 }
 
-const QuizModal = ({ questions, onClose, onComplete, sessionId }: QuizModalProps) => {
+const QuizModal = ({ questions: rawQuestions, onClose, onComplete, sessionId }: QuizModalProps) => {
+  // Ensure each question has a unique ID
+  const questions = useMemo(() => {
+    return rawQuestions.map((q, index) => ({
+      ...q,
+      id: q.id || `q_${index}_${Date.now()}`,
+    }));
+  }, [rawQuestions]);
+
   const [currentIndex, setCurrentIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [grading, setGrading] = useState(false);
   const [result, setResult] = useState<QuizGradeResult | null>(null);
-  const [_showExplanation, _setShowExplanation] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const { language } = useLanguage();
 
   const currentQuestion = questions[currentIndex];
   const isLastQuestion = currentIndex === questions.length - 1;
-  const answeredCount = Object.keys(answers).length;
+  
+  // Check if all questions are answered
+  const allAnswered = useMemo(() => {
+    return questions.every(q => answers[q.id] && answers[q.id].trim() !== '');
+  }, [questions, answers]);
+  
+  const answeredCount = Object.keys(answers).filter(key => answers[key]?.trim()).length;
 
   const handleAnswer = (answer: string) => {
     setAnswers(prev => ({
@@ -53,14 +67,23 @@ const QuizModal = ({ questions, onClose, onComplete, sessionId }: QuizModalProps
   };
 
   const handleSubmit = async () => {
+    if (!allAnswered) {
+      setError('Please answer all questions before submitting.');
+      return;
+    }
+    
     try {
       setGrading(true);
+      setError(null);
       const response = await quizApi.grade(answers, questions, sessionId, language);
       if (response.success && response.data) {
         setResult(response.data);
+      } else {
+        setError('Failed to grade quiz. Please try again.');
       }
     } catch (err) {
       console.error('Failed to grade quiz:', err);
+      setError('Failed to grade quiz. Please try again.');
     } finally {
       setGrading(false);
     }
@@ -254,6 +277,18 @@ const QuizModal = ({ questions, onClose, onComplete, sessionId }: QuizModalProps
             </div>
           )}
 
+          {/* Error Message */}
+          {error && (
+            <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">
+              {error}
+            </div>
+          )}
+
+          {/* Answer Status */}
+          <div className="mb-4 text-sm text-gray-500 text-center">
+            {answeredCount} of {questions.length} questions answered
+          </div>
+
           {/* Navigation */}
           <div className="flex items-center justify-between">
             <button
@@ -268,7 +303,7 @@ const QuizModal = ({ questions, onClose, onComplete, sessionId }: QuizModalProps
             {isLastQuestion ? (
               <button
                 onClick={handleSubmit}
-                disabled={answeredCount < questions.length || grading}
+                disabled={!allAnswered || grading}
                 className="flex items-center gap-2 px-6 py-2 bg-primary-600 text-white rounded-xl font-medium hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
                 {grading ? (
@@ -279,7 +314,7 @@ const QuizModal = ({ questions, onClose, onComplete, sessionId }: QuizModalProps
                 ) : (
                   <>
                     <Check className="h-4 w-4" />
-                    Submit Quiz
+                    Submit Quiz ({answeredCount}/{questions.length})
                   </>
                 )}
               </button>
