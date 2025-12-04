@@ -34,10 +34,12 @@ const Tutor = () => {
 
   const {
     transcript,
+    finalTranscript,
     isListening,
     isSupported: speechSupported,
     startListening,
     stopListening,
+    clearTranscript,
   } = useSpeechRecognition(language);
 
   const {
@@ -56,12 +58,14 @@ const Tutor = () => {
     stopSpeaking();
   }, [location.pathname, stopSpeaking]);
 
-  // Update input when transcript changes
+  // Update input only when we get a FINAL transcript (not interim)
   useEffect(() => {
-    if (transcript) {
-      setInput((prev) => prev + (prev ? ' ' : '') + transcript);
+    if (finalTranscript) {
+      setInput((prev) => prev + (prev ? ' ' : '') + finalTranscript);
+      // Clear the transcript after adding to input to prevent duplicates
+      clearTranscript();
     }
-  }, [transcript]);
+  }, [finalTranscript, clearTranscript]);
 
   // Auto-scroll to bottom
   useEffect(() => {
@@ -295,8 +299,9 @@ const Tutor = () => {
               style={{ minHeight: '48px', maxHeight: '120px' }}
             />
             {isListening && (
-              <div className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-red-500 animate-pulse">
-                {t('tutor.listening')}
+              <div className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-red-500 animate-pulse flex items-center gap-1">
+                <span className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>
+                {transcript ? transcript.slice(0, 30) + (transcript.length > 30 ? '...' : '') : t('tutor.listening')}
               </div>
             )}
           </div>

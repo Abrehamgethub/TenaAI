@@ -2,11 +2,13 @@ import { useState, useEffect, useCallback } from 'react';
 
 interface SpeechRecognitionResult {
   transcript: string;
+  finalTranscript: string;
   isListening: boolean;
   error: string | null;
   isSupported: boolean;
   startListening: () => void;
   stopListening: () => void;
+  clearTranscript: () => void;
 }
 
 // Types for Web Speech API
@@ -60,6 +62,7 @@ declare global {
 
 export const useSpeechRecognition = (language: string = 'en-US'): SpeechRecognitionResult => {
   const [transcript, setTranscript] = useState<string>('');
+  const [finalTranscript, setFinalTranscript] = useState<string>('');
   const [isListening, setIsListening] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [recognition, setRecognition] = useState<SpeechRecognition | null>(null);
@@ -85,19 +88,25 @@ export const useSpeechRecognition = (language: string = 'en-US'): SpeechRecognit
     recognitionInstance.lang = langMap[language] || language;
 
     recognitionInstance.onresult = (event: SpeechRecognitionEvent) => {
-      let finalTranscript = '';
-      let interimTranscript = '';
+      let finalText = '';
+      let interimText = '';
 
       for (let i = 0; i < event.results.length; i++) {
         const result = event.results[i];
         if (result.isFinal) {
-          finalTranscript += result[0].transcript;
+          finalText += result[0].transcript;
         } else {
-          interimTranscript += result[0].transcript;
+          interimText += result[0].transcript;
         }
       }
 
-      setTranscript(finalTranscript || interimTranscript);
+      // Always show current transcript (interim or final)
+      setTranscript(finalText || interimText);
+      
+      // Only set final transcript when we have confirmed final results
+      if (finalText) {
+        setFinalTranscript(finalText);
+      }
     };
 
     recognitionInstance.onerror = (event: SpeechRecognitionErrorEvent) => {
@@ -124,6 +133,7 @@ export const useSpeechRecognition = (language: string = 'en-US'): SpeechRecognit
   const startListening = useCallback(() => {
     if (recognition && !isListening) {
       setTranscript('');
+      setFinalTranscript('');
       setError(null);
       try {
         recognition.start();
@@ -140,13 +150,20 @@ export const useSpeechRecognition = (language: string = 'en-US'): SpeechRecognit
     }
   }, [recognition, isListening]);
 
+  const clearTranscript = useCallback(() => {
+    setTranscript('');
+    setFinalTranscript('');
+  }, []);
+
   return {
     transcript,
+    finalTranscript,
     isListening,
     error,
     isSupported,
     startListening,
     stopListening,
+    clearTranscript,
   };
 };
 
