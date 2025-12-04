@@ -3,8 +3,11 @@ import { useLanguage } from '../context/LanguageContext';
 import { tutorApi } from '../api';
 import ChatBubble from '../components/ChatBubble';
 import MicrophoneButton from '../components/MicrophoneButton';
+import TypingIndicator from '../components/TypingIndicator';
+import QuickActions from '../components/QuickActions';
 import { useSpeechRecognition } from '../hooks/useSpeechRecognition';
-import { Send, Loader2, MessageCircle, Trash2 } from 'lucide-react';
+import { useTextToSpeech } from '../hooks/useTextToSpeech';
+import { Send, Loader2, MessageCircle, Trash2, Volume2, VolumeX } from 'lucide-react';
 
 interface Message {
   id: string;
@@ -19,6 +22,7 @@ const Tutor = () => {
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [historyId, setHistoryId] = useState<string | undefined>();
+  const [voiceMode, setVoiceMode] = useState(false);
 
   const { t, language } = useLanguage();
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -26,10 +30,17 @@ const Tutor = () => {
   const {
     transcript,
     isListening,
-    isSupported,
+    isSupported: speechSupported,
     startListening,
     stopListening,
   } = useSpeechRecognition(language);
+
+  const {
+    speak,
+    stop: stopSpeaking,
+    isSpeaking,
+    isSupported: ttsSupported,
+  } = useTextToSpeech(language);
 
   // Update input when transcript changes
   useEffect(() => {
@@ -71,6 +82,11 @@ const Tutor = () => {
 
         if (response.data.historyId) {
           setHistoryId(response.data.historyId);
+        }
+
+        // Speak the response if voice mode is enabled
+        if (voiceMode && ttsSupported) {
+          speak(response.data.response);
         }
       }
     } catch (error) {
@@ -118,15 +134,34 @@ const Tutor = () => {
           </div>
           <h1 className="text-2xl font-bold text-gray-900">{t('tutor.title')}</h1>
         </div>
-        {messages.length > 0 && (
-          <button
-            onClick={clearChat}
-            className="flex items-center gap-2 rounded-lg border border-gray-200 px-3 py-2 text-sm text-gray-600 hover:bg-gray-50 transition-colors"
-          >
-            <Trash2 className="h-4 w-4" />
-            Clear
-          </button>
-        )}
+        <div className="flex items-center gap-2">
+          {/* Voice Mode Toggle */}
+          {ttsSupported && (
+            <button
+              onClick={() => {
+                if (isSpeaking) stopSpeaking();
+                setVoiceMode(!voiceMode);
+              }}
+              className={`flex items-center gap-2 rounded-lg border px-3 py-2 text-sm transition-colors ${
+                voiceMode
+                  ? 'border-primary-500 bg-primary-50 text-primary-700'
+                  : 'border-gray-200 text-gray-600 hover:bg-gray-50'
+              }`}
+            >
+              {voiceMode ? <Volume2 className="h-4 w-4" /> : <VolumeX className="h-4 w-4" />}
+              Voice {voiceMode ? 'On' : 'Off'}
+            </button>
+          )}
+          {messages.length > 0 && (
+            <button
+              onClick={clearChat}
+              className="flex items-center gap-2 rounded-lg border border-gray-200 px-3 py-2 text-sm text-gray-600 hover:bg-gray-50 transition-colors"
+            >
+              <Trash2 className="h-4 w-4" />
+              Clear
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Chat Area */}
@@ -166,12 +201,7 @@ const Tutor = () => {
                 timestamp={message.timestamp}
               />
             ))}
-            {loading && (
-              <div className="flex items-center gap-2 text-gray-500">
-                <Loader2 className="h-4 w-4 animate-spin" />
-                <span className="text-sm">Thinking...</span>
-              </div>
-            )}
+            {loading && <TypingIndicator />}
             <div ref={messagesEndRef} />
           </div>
         )}
@@ -197,7 +227,7 @@ const Tutor = () => {
         </div>
         <MicrophoneButton
           isListening={isListening}
-          isSupported={isSupported}
+          isSupported={speechSupported}
           onClick={handleMicClick}
           disabled={loading}
         />
@@ -213,6 +243,18 @@ const Tutor = () => {
           )}
         </button>
       </div>
+
+      {/* Quick Actions */}
+      {messages.length > 0 && (
+        <QuickActions
+          onAction={(prompt) => {
+            setInput(prompt);
+            handleSend();
+          }}
+          disabled={loading}
+          context={messages[messages.length - 1]?.content}
+        />
+      )}
     </div>
   );
 };
