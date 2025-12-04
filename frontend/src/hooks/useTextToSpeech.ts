@@ -24,16 +24,19 @@ export const useTextToSpeech = (lang: string = 'en-US'): UseTextToSpeechReturn =
   const [currentVoice, setCurrentVoice] = useState<SpeechSynthesisVoice | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   
-  const isSupported = typeof window !== 'undefined' && 'speechSynthesis' in window;
+  const browserTTSSupported = typeof window !== 'undefined' && 'speechSynthesis' in window;
+  
+  // Check if we should use cloud TTS
+  const useCloudTTS = useMemo(() => {
+    return CLOUD_TTS_LANGUAGES.includes(lang);
+  }, [lang]);
+  
+  // TTS is supported if either browser TTS works OR we use cloud TTS
+  const isSupported = browserTTSSupported || useCloudTTS;
   
   // Check if the current language has TTS support (browser or cloud)
   const isLanguageSupported = useMemo(() => {
     return !UNSUPPORTED_LANGUAGES.includes(lang);
-  }, [lang]);
-
-  // Check if we should use cloud TTS
-  const useCloudTTS = useMemo(() => {
-    return CLOUD_TTS_LANGUAGES.includes(lang);
   }, [lang]);
 
   // Message to show when language is not supported
@@ -44,9 +47,9 @@ export const useTextToSpeech = (lang: string = 'en-US'): UseTextToSpeechReturn =
     return null;
   }, [lang]);
 
-  // Load available voices
+  // Load available voices (only for browser TTS)
   useEffect(() => {
-    if (!isSupported) return;
+    if (!browserTTSSupported) return;
 
     const loadVoices = () => {
       const availableVoices = window.speechSynthesis.getVoices();
@@ -69,32 +72,45 @@ export const useTextToSpeech = (lang: string = 'en-US'): UseTextToSpeechReturn =
     return () => {
       window.speechSynthesis.onvoiceschanged = null;
     };
-  }, [isSupported, lang]);
+  }, [browserTTSSupported, lang]);
 
   // CRITICAL: Stop speech on unmount or page navigation
   useEffect(() => {
-    if (!isSupported) return;
-
     // Stop speech when component unmounts
     return () => {
-      window.speechSynthesis.cancel();
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current = null;
+      }
+      if (browserTTSSupported) {
+        window.speechSynthesis.cancel();
+      }
       setIsSpeaking(false);
     };
-  }, [isSupported]);
+  }, [browserTTSSupported]);
 
   // Also stop on page visibility change (tab switch) and before unload
   useEffect(() => {
-    if (!isSupported) return;
-
     const handleVisibilityChange = () => {
       if (document.hidden) {
-        window.speechSynthesis.cancel();
+        if (audioRef.current) {
+          audioRef.current.pause();
+          audioRef.current = null;
+        }
+        if (browserTTSSupported) {
+          window.speechSynthesis.cancel();
+        }
         setIsSpeaking(false);
       }
     };
 
     const handleBeforeUnload = () => {
-      window.speechSynthesis.cancel();
+      if (audioRef.current) {
+        audioRef.current.pause();
+      }
+      if (browserTTSSupported) {
+        window.speechSynthesis.cancel();
+      }
     };
 
     document.addEventListener('visibilitychange', handleVisibilityChange);
@@ -103,9 +119,11 @@ export const useTextToSpeech = (lang: string = 'en-US'): UseTextToSpeechReturn =
     return () => {
       document.removeEventListener('visibilitychange', handleVisibilityChange);
       window.removeEventListener('beforeunload', handleBeforeUnload);
-      window.speechSynthesis.cancel();
+      if (browserTTSSupported) {
+        window.speechSynthesis.cancel();
+      }
     };
-  }, [isSupported]);
+  }, [browserTTSSupported]);
 
   const speak = useCallback(async (text: string) => {
     // Don't speak if not supported or language not supported
@@ -116,7 +134,7 @@ export const useTextToSpeech = (lang: string = 'en-US'): UseTextToSpeechReturn =
       audioRef.current.pause();
       audioRef.current = null;
     }
-    if (isSupported) {
+    if (browserTTSSupported) {
       window.speechSynthesis.cancel();
     }
 
@@ -124,7 +142,9 @@ export const useTextToSpeech = (lang: string = 'en-US'): UseTextToSpeechReturn =
     if (useCloudTTS) {
       try {
         setIsSpeaking(true);
+        console.log('Calling Cloud TTS for language:', lang);
         const response = await ttsApi.synthesize(text, lang as 'am' | 'en' | 'om');
+        console.log('TTS response:', response.success, !!response.data?.audioContent);
         
         if (response.success && response.data?.audioContent) {
           // Create audio from base64
@@ -133,16 +153,20 @@ export const useTextToSpeech = (lang: string = 'en-US'): UseTextToSpeechReturn =
           audioRef.current = audio;
           
           audio.onended = () => {
+            console.log('Audio playback ended');
             setIsSpeaking(false);
             audioRef.current = null;
           };
-          audio.onerror = () => {
+          audio.onerror = (e) => {
+            console.error('Audio playback error:', e);
             setIsSpeaking(false);
             audioRef.current = null;
           };
           
+          console.log('Playing audio...');
           await audio.play();
         } else {
+          console.error('TTS failed:', response);
           setIsSpeaking(false);
         }
       } catch (error) {
@@ -153,7 +177,7 @@ export const useTextToSpeech = (lang: string = 'en-US'): UseTextToSpeechReturn =
     }
 
     // Use browser TTS for English
-    if (!isSupported) return;
+    if (!browserTTSSupported) return;
 
     const utterance = new SpeechSynthesisUtterance(text);
     
@@ -171,7 +195,7 @@ export const useTextToSpeech = (lang: string = 'en-US'): UseTextToSpeechReturn =
     utterance.onerror = () => setIsSpeaking(false);
 
     window.speechSynthesis.speak(utterance);
-  }, [isSupported, isLanguageSupported, useCloudTTS, lang, currentVoice]);
+  }, [browserTTSSupported, isLanguageSupported, useCloudTTS, lang, currentVoice]);
 
   const stop = useCallback(() => {
     // Stop cloud TTS audio
@@ -180,11 +204,11 @@ export const useTextToSpeech = (lang: string = 'en-US'): UseTextToSpeechReturn =
       audioRef.current = null;
     }
     // Stop browser TTS
-    if (isSupported) {
+    if (browserTTSSupported) {
       window.speechSynthesis.cancel();
     }
     setIsSpeaking(false);
-  }, [isSupported]);
+  }, [browserTTSSupported]);
 
   const setVoice = useCallback((voice: SpeechSynthesisVoice) => {
     setCurrentVoice(voice);
