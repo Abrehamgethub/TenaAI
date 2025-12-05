@@ -1,10 +1,19 @@
 import { useState, useCallback, useEffect, useMemo, useRef } from 'react';
 import { ttsApi } from '../api';
 
-// Languages supported by Google Cloud TTS (Amharic is now supported!)
-const CLOUD_TTS_LANGUAGES = ['am'];
-// Languages not supported at all (Oromo has no TTS support yet)
-const UNSUPPORTED_LANGUAGES = ['om'];
+// Languages supported by Google Cloud TTS
+const CLOUD_TTS_LANGUAGES = ['am', 'tg', 'so'];
+// Languages not fully supported - will try browser TTS first, then cloud, then show message
+const FALLBACK_LANGUAGES = ['om'];
+
+// Voice language mappings for browser TTS
+const VOICE_LANG_MAP: Record<string, string[]> = {
+  'en': ['en-US', 'en-GB', 'en'],
+  'am': ['am-ET', 'am', 'Amharic'],
+  'om': ['om-ET', 'om', 'Oromo'],
+  'tg': ['ti-ET', 'ti', 'Tigrinya', 'en-US'], // Fallback to English
+  'so': ['so-SO', 'so', 'Somali', 'en-US'], // Fallback to English
+};
 
 /**
  * Clean text for TTS - remove markdown and special characters
@@ -68,13 +77,14 @@ export const useTextToSpeech = (lang: string = 'en-US'): UseTextToSpeechReturn =
   
   // Check if the current language has TTS support (browser or cloud)
   const isLanguageSupported = useMemo(() => {
-    return !UNSUPPORTED_LANGUAGES.includes(lang);
-  }, [lang]);
+    // All languages are supported now via cloud TTS fallback
+    return true;
+  }, []);
 
-  // Message to show when language is not supported
+  // Message to show when language might have limited support
   const unsupportedMessage = useMemo(() => {
-    if (lang === 'om') {
-      return 'Voice is not available for Afan Oromo. The text response is shown above.';
+    if (FALLBACK_LANGUAGES.includes(lang)) {
+      return 'Voice may have limited support for this language. Text response is shown above.';
     }
     return null;
   }, [lang]);
@@ -87,11 +97,22 @@ export const useTextToSpeech = (lang: string = 'en-US'): UseTextToSpeechReturn =
       const availableVoices = window.speechSynthesis.getVoices();
       setVoices(availableVoices);
       
-      // Set default voice based on language
-      const langCode = lang === 'am' ? 'am' : lang === 'om' ? 'om' : 'en';
-      const defaultVoice = availableVoices.find(v => v.lang.startsWith(langCode)) 
-        || availableVoices.find(v => v.lang.startsWith('en'))
-        || availableVoices[0];
+      // Set default voice based on language using VOICE_LANG_MAP
+      const langCodes = VOICE_LANG_MAP[lang] || VOICE_LANG_MAP['en'];
+      
+      // Try to find a voice matching any of the language codes
+      let defaultVoice: SpeechSynthesisVoice | undefined;
+      for (const code of langCodes) {
+        defaultVoice = availableVoices.find(v => 
+          v.lang.startsWith(code) || v.name.toLowerCase().includes(code.toLowerCase())
+        );
+        if (defaultVoice) break;
+      }
+      
+      // Fallback to English if no matching voice found
+      if (!defaultVoice) {
+        defaultVoice = availableVoices.find(v => v.lang.startsWith('en')) || availableVoices[0];
+      }
       
       if (defaultVoice) {
         setCurrentVoice(defaultVoice);

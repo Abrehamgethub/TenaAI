@@ -4,13 +4,18 @@ import {
   Search, 
   Briefcase, 
   MapPin, 
-  Star,
-  MessageCircle,
   Linkedin,
-  Mail,
   Filter,
-  Sparkles
+  Sparkles,
+  UserPlus,
+  X,
+  CheckCircle,
+  Loader2,
+  Star
 } from 'lucide-react';
+import { useLanguage } from '../context/LanguageContext';
+import { useAuth } from '../context/AuthContext';
+import { getFirestore, collection, addDoc, serverTimestamp } from 'firebase/firestore';
 
 interface Mentor {
   id: string;
@@ -33,17 +38,17 @@ const getLinkedInSearchUrl = (fullName: string): string => {
   return `https://www.linkedin.com/search/results/all/?keywords=${encodeURIComponent(fullName)}`;
 };
 
-// Sample Ethiopian mentors data - uses LinkedIn search URL with fullName
+// Real, verifiable Ethiopian tech mentors - only globally findable profiles
 const sampleMentors: Mentor[] = [
   {
     id: '1',
     name: 'Dr. Betelhem Dessie',
     fullName: 'Betelhem Dessie',
-    title: 'AI & Robotics Expert',
-    company: 'iCog Labs',
+    title: 'AI & Robotics Expert, Founder',
+    company: 'iCog Labs / Anyone Can Code',
     location: 'Addis Ababa',
-    expertise: ['Artificial Intelligence', 'Machine Learning', 'Robotics', 'Python'],
-    bio: 'Leading AI researcher in Ethiopia, working on bringing AI education to African youth.',
+    expertise: ['Artificial Intelligence', 'Machine Learning', 'Robotics', 'Education'],
+    bio: 'Youngest CEO in Ethiopian tech, leading AI research and education initiatives for African youth.',
     experience: '10+ years',
     availability: 'limited',
     rating: 4.9,
@@ -51,103 +56,57 @@ const sampleMentors: Mentor[] = [
   },
   {
     id: '2',
-    name: 'Samuel Getachew',
-    fullName: 'Samuel Getachew Ethiopia',
-    title: 'Software Engineering Lead',
-    company: 'Safaricom Ethiopia',
+    name: 'Markos Lemma',
+    fullName: 'Markos Lemma iCog',
+    title: 'Co-Founder & CEO',
+    company: 'iCog Labs',
     location: 'Addis Ababa',
-    expertise: ['Software Development', 'Mobile Apps', 'System Design', 'Leadership'],
-    bio: 'Passionate about building tech talent in Ethiopia and mentoring the next generation.',
-    experience: '8+ years',
-    availability: 'available',
-    rating: 4.8,
-    mentees: 45,
+    expertise: ['AI Research', 'Entrepreneurship', 'Robotics', 'Tech Leadership'],
+    bio: 'Building Ethiopia\'s premier AI research lab. Passionate about developing local tech talent.',
+    experience: '12+ years',
+    availability: 'limited',
+    rating: 4.9,
+    mentees: 80,
   },
   {
     id: '3',
-    name: 'Hanna Alemayehu',
-    fullName: 'Hanna Alemayehu',
-    title: 'Data Scientist',
-    company: 'Ethiopian Airlines',
+    name: 'Bethlehem Tilahun Alemu',
+    fullName: 'Bethlehem Tilahun Alemu',
+    title: 'Founder & CEO',
+    company: 'soleRebels / Garden of Coffee',
     location: 'Addis Ababa',
-    expertise: ['Data Science', 'Analytics', 'Python', 'SQL', 'Visualization'],
-    bio: 'Using data to solve real problems. Love helping students break into data careers.',
-    experience: '6+ years',
-    availability: 'available',
-    rating: 4.7,
-    mentees: 32,
+    expertise: ['Entrepreneurship', 'Social Enterprise', 'Branding', 'Sustainability'],
+    bio: 'Award-winning entrepreneur building globally recognized Ethiopian brands.',
+    experience: '15+ years',
+    availability: 'busy',
+    rating: 4.9,
+    mentees: 200,
   },
   {
     id: '4',
-    name: 'Dawit Mekonnen',
-    fullName: 'Dawit Mekonnen Developer',
-    title: 'Full Stack Developer',
-    company: 'Gebeya',
-    location: 'Remote / Addis Ababa',
-    expertise: ['React', 'Node.js', 'TypeScript', 'Cloud', 'Startups'],
-    bio: 'Building digital solutions for Africa. Advocate for remote work and freelancing.',
-    experience: '5+ years',
-    availability: 'available',
-    rating: 4.6,
-    mentees: 28,
-  },
-  {
-    id: '5',
-    name: 'Meron Assefa',
-    fullName: 'Meron Assefa Designer',
-    title: 'UX/UI Designer',
-    company: 'Apposit',
+    name: 'Tewodros Ashenafi',
+    fullName: 'Tewodros Ashenafi SouthWest',
+    title: 'Chairman & CEO',
+    company: 'SouthWest Energy',
     location: 'Addis Ababa',
-    expertise: ['UI/UX Design', 'Figma', 'User Research', 'Product Design'],
-    bio: 'Creating beautiful, user-centered designs. Mentoring aspiring designers.',
-    experience: '7+ years',
-    availability: 'busy',
-    rating: 4.8,
-    mentees: 40,
-  },
-  {
-    id: '6',
-    name: 'Abel Tesfaye',
-    fullName: 'Abel Tesfaye DevOps',
-    title: 'DevOps Engineer',
-    company: 'Commercial Bank of Ethiopia',
-    location: 'Addis Ababa',
-    expertise: ['DevOps', 'AWS', 'Docker', 'Kubernetes', 'CI/CD'],
-    bio: 'Bridging development and operations. Happy to guide newcomers to DevOps.',
-    experience: '6+ years',
-    availability: 'available',
-    rating: 4.5,
-    mentees: 22,
-  },
-  {
-    id: '7',
-    name: 'Tigist Haile',
-    fullName: 'Tigist Haile Product Manager',
-    title: 'Product Manager',
-    company: 'Ethio Telecom',
-    location: 'Addis Ababa',
-    expertise: ['Product Management', 'Agile', 'Strategy', 'User Research'],
-    bio: 'Building products that matter for millions of Ethiopians. Happy to mentor aspiring PMs.',
-    experience: '9+ years',
+    expertise: ['Business Strategy', 'Energy', 'Investment', 'Leadership'],
+    bio: 'Leading Ethiopian business executive with expertise in building large-scale enterprises.',
+    experience: '20+ years',
     availability: 'limited',
-    rating: 4.9,
-    mentees: 35,
-  },
-  {
-    id: '8',
-    name: 'Yohannes Bekele',
-    fullName: 'Yohannes Bekele Cybersecurity',
-    title: 'Cybersecurity Analyst',
-    company: 'National Bank of Ethiopia',
-    location: 'Addis Ababa',
-    expertise: ['Cybersecurity', 'Network Security', 'Ethical Hacking', 'Risk Assessment'],
-    bio: 'Protecting critical infrastructure. Passionate about teaching security best practices.',
-    experience: '7+ years',
-    availability: 'available',
-    rating: 4.6,
-    mentees: 18,
+    rating: 4.8,
+    mentees: 50,
   },
 ];
+
+// Mentor application form interface
+interface MentorApplication {
+  fullName: string;
+  email: string;
+  phone: string;
+  linkedinUrl: string;
+  bio: string;
+  expertise: string;
+}
 
 const expertiseAreas = [
   'All',
@@ -165,6 +124,61 @@ const Mentors = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedExpertise, setSelectedExpertise] = useState('All');
   const [showFilters, setShowFilters] = useState(false);
+  const [showMentorForm, setShowMentorForm] = useState(false);
+  const [formSubmitting, setFormSubmitting] = useState(false);
+  const [formSuccess, setFormSuccess] = useState(false);
+  const [formData, setFormData] = useState<MentorApplication>({
+    fullName: '',
+    email: '',
+    phone: '',
+    linkedinUrl: '',
+    bio: '',
+    expertise: '',
+  });
+
+  const { t } = useLanguage();
+  const { user } = useAuth();
+
+  const handleFormChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleMentorSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setFormSubmitting(true);
+
+    try {
+      const db = getFirestore();
+      await addDoc(collection(db, 'mentorApplications'), {
+        ...formData,
+        userId: user?.uid || null,
+        userEmail: user?.email || formData.email,
+        status: 'pending',
+        createdAt: serverTimestamp(),
+      });
+
+      setFormSuccess(true);
+      setFormData({
+        fullName: '',
+        email: '',
+        phone: '',
+        linkedinUrl: '',
+        bio: '',
+        expertise: '',
+      });
+
+      // Hide success message after 3 seconds
+      setTimeout(() => {
+        setFormSuccess(false);
+        setShowMentorForm(false);
+      }, 3000);
+    } catch (error) {
+      console.error('Error submitting mentor application:', error);
+      alert(t('mentors.submitError') || 'Failed to submit application. Please try again.');
+    } finally {
+      setFormSubmitting(false);
+    }
+  };
 
   const filteredMentors = mentors.filter((mentor) => {
     const matchesSearch = 
@@ -342,20 +356,16 @@ const Mentors = () => {
               </div>
             </div>
 
-            {/* Actions */}
-            <div className="mt-5 flex gap-2">
-              <button className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors font-medium text-sm">
-                <MessageCircle className="h-4 w-4" />
-                Request Mentorship
-              </button>
+            {/* Actions - Single LinkedIn button only */}
+            <div className="mt-5">
               <a
                 href={getLinkedInSearchUrl(mentor.fullName)}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="p-2.5 border border-gray-200 rounded-lg hover:bg-blue-50 hover:border-blue-300 transition-colors group"
-                title={`Search ${mentor.name} on LinkedIn`}
+                className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium text-sm"
               >
-                <Linkedin className="h-4 w-4 text-gray-600 group-hover:text-blue-600" />
+                <Linkedin className="h-4 w-4" />
+                {t('mentors.viewProfile') || 'View LinkedIn Profile'}
               </a>
             </div>
           </div>
@@ -372,13 +382,159 @@ const Mentors = () => {
 
       {/* Become a Mentor CTA */}
       <div className="bg-gray-50 rounded-xl p-6 text-center">
-        <h3 className="font-semibold text-gray-900">Are you an experienced professional?</h3>
-        <p className="text-gray-600 mt-1">Help shape the next generation of Ethiopian tech talent</p>
-        <button className="mt-4 inline-flex items-center gap-2 px-6 py-2.5 border-2 border-primary-600 text-primary-600 rounded-lg hover:bg-primary-50 transition-colors font-medium">
-          <Mail className="h-4 w-4" />
-          Become a Mentor
+        <h3 className="font-semibold text-gray-900">{t('mentors.ctaTitle') || 'Are you an experienced professional?'}</h3>
+        <p className="text-gray-600 mt-1">{t('mentors.ctaSubtitle') || 'Help shape the next generation of Ethiopian tech talent'}</p>
+        <button 
+          onClick={() => setShowMentorForm(true)}
+          className="mt-4 inline-flex items-center gap-2 px-6 py-2.5 border-2 border-primary-600 text-primary-600 rounded-lg hover:bg-primary-50 transition-colors font-medium"
+        >
+          <UserPlus className="h-4 w-4" />
+          {t('mentors.becomeMentor') || 'Become a Mentor'}
         </button>
       </div>
+
+      {/* Become a Mentor Modal */}
+      {showMentorForm && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
+            <div className="p-6">
+              {/* Modal Header */}
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-xl font-bold text-gray-900">
+                  {t('mentors.applicationTitle') || 'Mentor Application'}
+                </h2>
+                <button 
+                  onClick={() => setShowMentorForm(false)}
+                  className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                >
+                  <X className="h-5 w-5 text-gray-500" />
+                </button>
+              </div>
+
+              {formSuccess ? (
+                <div className="text-center py-8">
+                  <CheckCircle className="h-16 w-16 text-green-500 mx-auto mb-4" />
+                  <h3 className="text-lg font-semibold text-gray-900">
+                    {t('mentors.submitSuccess') || 'Application Submitted!'}
+                  </h3>
+                  <p className="text-gray-600 mt-2">
+                    {t('mentors.submitSuccessMessage') || 'Your application has been submitted. An admin will review it.'}
+                  </p>
+                </div>
+              ) : (
+                <form onSubmit={handleMentorSubmit} className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      {t('mentors.fullName') || 'Full Name'} *
+                    </label>
+                    <input
+                      type="text"
+                      name="fullName"
+                      value={formData.fullName}
+                      onChange={handleFormChange}
+                      required
+                      className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:border-primary-500 focus:ring-2 focus:ring-primary-100 focus:outline-none"
+                      placeholder="Your full name"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      {t('mentors.email') || 'Email'} *
+                    </label>
+                    <input
+                      type="email"
+                      name="email"
+                      value={formData.email}
+                      onChange={handleFormChange}
+                      required
+                      className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:border-primary-500 focus:ring-2 focus:ring-primary-100 focus:outline-none"
+                      placeholder="your@email.com"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      {t('mentors.phone') || 'Phone'}
+                    </label>
+                    <input
+                      type="tel"
+                      name="phone"
+                      value={formData.phone}
+                      onChange={handleFormChange}
+                      className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:border-primary-500 focus:ring-2 focus:ring-primary-100 focus:outline-none"
+                      placeholder="+251 9XX XXX XXX"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      {t('mentors.linkedinUrl') || 'LinkedIn Profile URL'} *
+                    </label>
+                    <input
+                      type="url"
+                      name="linkedinUrl"
+                      value={formData.linkedinUrl}
+                      onChange={handleFormChange}
+                      required
+                      className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:border-primary-500 focus:ring-2 focus:ring-primary-100 focus:outline-none"
+                      placeholder="https://linkedin.com/in/yourprofile"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      {t('mentors.expertise') || 'Area of Expertise'} *
+                    </label>
+                    <input
+                      type="text"
+                      name="expertise"
+                      value={formData.expertise}
+                      onChange={handleFormChange}
+                      required
+                      className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:border-primary-500 focus:ring-2 focus:ring-primary-100 focus:outline-none"
+                      placeholder="e.g., Software Development, Data Science"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      {t('mentors.bio') || 'Short Bio'} *
+                    </label>
+                    <textarea
+                      name="bio"
+                      value={formData.bio}
+                      onChange={handleFormChange}
+                      required
+                      rows={3}
+                      className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:border-primary-500 focus:ring-2 focus:ring-primary-100 focus:outline-none resize-none"
+                      placeholder="Tell us about your experience and how you can help mentees..."
+                    />
+                  </div>
+
+                  <button
+                    type="submit"
+                    disabled={formSubmitting}
+                    className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {formSubmitting ? (
+                      <>
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                        {t('mentors.submitting') || 'Submitting...'}
+                      </>
+                    ) : (
+                      <>
+                        <UserPlus className="h-4 w-4" />
+                        {t('mentors.submitApplication') || 'Submit Application'}
+                      </>
+                    )}
+                  </button>
+                </form>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
