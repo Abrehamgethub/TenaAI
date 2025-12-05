@@ -2,68 +2,198 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Custom global styles */
-body {
-  @apply bg-gray-50 text-gray-900 antialiased;
-  font-family: 'Inter', system-ui, sans-serif;
+/* ===== GLOBAL STYLES - Modern, Warm, Human-Centered ===== */
+
+@layer base {
+  body {
+    @apply bg-surface-50 text-text-primary antialiased;
+    font-family: 'Inter', 'Poppins', system-ui, sans-serif;
+    line-height: 1.6;
+  }
+
+  /* Smooth scroll behavior */
+  html {
+    scroll-behavior: smooth;
+  }
+
+  /* Focus styles for accessibility */
+  *:focus-visible {
+    @apply outline-none ring-2 ring-primary-500/50 ring-offset-2;
+  }
 }
 
-/* Custom scrollbar */
-::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+@layer components {
+  /* ===== BUTTONS ===== */
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 px-6 py-3 
+           bg-primary-500 text-white font-medium rounded-full
+           shadow-button hover:bg-primary-600 hover:shadow-lg
+           transform transition-all duration-200 ease-out
+           hover:scale-[1.02] active:scale-[0.98];
+  }
+
+  .btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 px-6 py-3
+           bg-white text-primary-600 font-medium rounded-full
+           border border-primary-200 shadow-soft
+           transform transition-all duration-200 ease-out
+           hover:bg-primary-50 hover:scale-[1.02] active:scale-[0.98];
+  }
+
+  .btn-accent {
+    @apply inline-flex items-center justify-center gap-2 px-6 py-3
+           bg-accent-300 text-white font-medium rounded-full
+           shadow-soft hover:bg-accent-400 hover:shadow-lg
+           transform transition-all duration-200 ease-out
+           hover:scale-[1.02] active:scale-[0.98];
+  }
+
+  /* ===== CARDS ===== */
+  .card {
+    @apply bg-white rounded-2xl p-6 shadow-card
+           transition-all duration-300 ease-out;
+  }
+
+  .card-hover {
+    @apply card hover:shadow-soft-lg hover:-translate-y-1;
+  }
+
+  .card-glass {
+    @apply bg-white/80 backdrop-blur-lg rounded-2xl p-6 shadow-glass
+           border border-white/20;
+  }
+
+  /* ===== INPUTS ===== */
+  .input-field {
+    @apply w-full px-4 py-3 bg-surface-50 border border-surface-300
+           rounded-xl text-text-primary placeholder-text-muted
+           transition-all duration-200
+           focus:border-primary-400 focus:bg-white focus:shadow-soft
+           focus:outline-none focus:ring-2 focus:ring-primary-100;
+  }
+
+  /* ===== CHAT BUBBLES ===== */
+  .chat-bubble-user {
+    @apply bg-gradient-to-br from-primary-500 to-primary-600 
+           text-white rounded-3xl rounded-br-lg px-5 py-3
+           shadow-soft animate-fade-in-up;
+  }
+
+  .chat-bubble-ai {
+    @apply bg-gradient-to-br from-surface-100 to-surface-200 
+           text-text-primary rounded-3xl rounded-bl-lg px-5 py-3
+           shadow-soft animate-fade-in-up;
+  }
+
+  /* ===== NAVIGATION ===== */
+  .nav-item {
+    @apply flex items-center gap-3 px-4 py-3 rounded-xl
+           text-text-secondary font-medium
+           transition-all duration-200 ease-out
+           hover:bg-primary-50 hover:text-primary-600;
+  }
+
+  .nav-item-active {
+    @apply nav-item bg-primary-50 text-primary-600 shadow-soft;
+  }
 }
 
-::-webkit-scrollbar-track {
-  @apply bg-gray-100;
+@layer utilities {
+  /* ===== CUSTOM SCROLLBAR ===== */
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-track {
+    @apply bg-transparent;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    @apply bg-surface-300 rounded-full hover:bg-surface-300;
+  }
+
+  /* Hide scrollbar but keep functionality */
+  .hide-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .hide-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* ===== GLASS MORPHISM ===== */
+  .glass {
+    @apply bg-white/80 backdrop-blur-lg;
+  }
+
+  .glass-strong {
+    @apply bg-white/90 backdrop-blur-xl;
+  }
+
+  /* ===== GRADIENT TEXT ===== */
+  .gradient-text {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-primary-500 to-accent-300;
+  }
+
+  /* ===== TYPING INDICATOR ===== */
+  .typing-dot {
+    @apply w-2 h-2 bg-primary-400 rounded-full;
+    animation: typing 1.4s infinite ease-in-out;
+  }
+
+  .typing-dot:nth-child(1) { animation-delay: 0s; }
+  .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+  .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+  /* ===== CHECKBOX ANIMATION ===== */
+  .checkbox-custom {
+    @apply w-6 h-6 rounded-lg border-2 border-surface-300
+           flex items-center justify-center cursor-pointer
+           transition-all duration-200 ease-bounce-in;
+  }
+
+  .checkbox-custom.checked {
+    @apply bg-accent-300 border-accent-300;
+  }
+
+  .checkbox-custom.checked svg {
+    @apply animate-check;
+  }
+
+  /* ===== PROGRESS RING ===== */
+  .progress-ring {
+    transform: rotate(-90deg);
+  }
+
+  .progress-ring circle {
+    transition: stroke-dashoffset 0.5s ease-out;
+  }
 }
 
-::-webkit-scrollbar-thumb {
-  @apply bg-gray-300 rounded-full;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  @apply bg-gray-400;
-}
-
-/* Hide scrollbar for chat container but keep functionality */
-.hide-scrollbar {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
-}
-
-.hide-scrollbar::-webkit-scrollbar {
-  display: none;
-}
-
-/* Animation for loading dots */
+/* ===== LOADING DOTS ===== */
 @keyframes bounce {
-  0%, 80%, 100% {
-    transform: translateY(0);
-  }
-  40% {
-    transform: translateY(-8px);
-  }
+  0%, 80%, 100% { transform: translateY(0); }
+  40% { transform: translateY(-6px); }
 }
 
 .loading-dot {
   animation: bounce 1.4s infinite ease-in-out both;
 }
 
-.loading-dot:nth-child(1) {
-  animation-delay: -0.32s;
+.loading-dot:nth-child(1) { animation-delay: -0.32s; }
+.loading-dot:nth-child(2) { animation-delay: -0.16s; }
+.loading-dot:nth-child(3) { animation-delay: 0s; }
+
+/* ===== SMOOTH PAGE TRANSITIONS ===== */
+.page-enter {
+  opacity: 0;
+  transform: translateY(10px);
 }
 
-.loading-dot:nth-child(2) {
-  animation-delay: -0.16s;
-}
-
-/* Glass morphism effect */
-.glass {
-  @apply bg-white/80 backdrop-blur-lg;
-}
-
-/* Gradient text */
-.gradient-text {
-  @apply bg-clip-text text-transparent bg-gradient-to-r from-primary-600 to-primary-400;
+.page-enter-active {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 0.3s ease-out, transform 0.3s ease-out;
 }

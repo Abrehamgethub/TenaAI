@@ -1,12 +1,21 @@
+import AiMentorAvatar from './AiMentorAvatar';
+
 const TypingIndicator = () => {
   return (
-    <div className="flex items-center gap-1 px-4 py-3">
-      <div className="flex items-center gap-1">
-        <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></span>
-        <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></span>
-        <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></span>
+    <div className="flex items-start gap-3 animate-fade-in">
+      {/* AI Avatar */}
+      <div className="h-10 w-10 shrink-0 rounded-full overflow-hidden ring-2 ring-white shadow-soft">
+        <AiMentorAvatar className="h-10 w-10" />
       </div>
-      <span className="text-sm text-gray-500 ml-2">AI is thinking...</span>
+      
+      {/* Typing Bubble */}
+      <div className="bg-gradient-to-br from-surface-50 to-surface-100 rounded-3xl rounded-bl-lg px-5 py-4 shadow-soft border border-surface-200">
+        <div className="flex items-center gap-1.5">
+          <span className="typing-dot" style={{ animationDelay: '0s' }}></span>
+          <span className="typing-dot" style={{ animationDelay: '0.2s' }}></span>
+          <span className="typing-dot" style={{ animationDelay: '0.4s' }}></span>
+        </div>
+      </div>
     </div>
   );
 };

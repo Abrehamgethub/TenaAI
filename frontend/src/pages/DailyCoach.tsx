@@ -5,7 +5,6 @@ import LoadingSpinner from '../components/LoadingSpinner';
 import QuizModal from '../components/QuizModal';
 import {
   Calendar,
-  CheckCircle,
   Circle,
   Clock,
   Flame,
@@ -15,6 +14,9 @@ import {
   Play,
   ExternalLink,
   Trophy,
+  Sparkles,
+  Check,
+  Brain,
 } from 'lucide-react';
 
 const DailyCoach = () => {
@@ -102,7 +104,6 @@ const DailyCoach = () => {
   };
 
   const completedCount = tasks.filter(t => t.completed).length;
-  const totalTime = tasks.reduce((sum, t) => sum + t.estimatedTime, 0);
   const completedTime = tasks
     .filter(t => t.completed)
     .reduce((sum, t) => sum + t.estimatedTime, 0);
@@ -117,89 +118,106 @@ const DailyCoach = () => {
 
   return (
     <div className="animate-fade-in space-y-6">
-      {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+      {/* Header - Calm and Welcoming */}
+      <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">📅 {t('dailyCoach.title')}</h1>
-          <p className="mt-2 text-gray-600">{t('dailyCoach.subtitle')}</p>
+          <div className="flex items-center gap-3 mb-2">
+            <div className="p-2.5 bg-gradient-to-br from-primary-100 to-primary-50 rounded-xl">
+              <Sparkles className="h-6 w-6 text-primary-500" />
+            </div>
+            <h1 className="text-2xl font-bold text-text-primary">{t('dailyCoach.title') || 'Your Daily Plan'}</h1>
+          </div>
+          <p className="text-text-secondary">{t('dailyCoach.subtitle') || 'Small steps lead to big achievements'}</p>
+          {/* Motivational Line */}
+          <p className="mt-3 text-sm text-accent-500 font-medium flex items-center gap-2">
+            ✨ {t('dailyCoach.motivation') || "You've got this. One step at a time."}
+          </p>
         </div>
-        <div className="flex items-center gap-4">
-          {/* Daily Time - Always 1 hour */}
-          <div className="flex items-center gap-2 bg-blue-100 px-4 py-2 rounded-full">
-            <Clock className="h-5 w-5 text-blue-500" />
-            <span className="font-semibold text-blue-700">{t('dailyCoach.oneHour')}</span>
-            <span className="text-xs text-blue-600">({t('dailyCoach.dailyTime')})</span>
+        <div className="flex items-center gap-3">
+          {/* Time Estimate */}
+          <div className="flex items-center gap-2 bg-primary-50 px-4 py-2.5 rounded-full border border-primary-100">
+            <Clock className="h-4 w-4 text-primary-500" />
+            <span className="text-sm font-medium text-primary-700">{t('dailyCoach.aboutOneHour') || 'About 1 hour'}</span>
           </div>
-          <div className="flex items-center gap-2 bg-orange-100 px-4 py-2 rounded-full">
-            <Flame className="h-5 w-5 text-orange-500" />
-            <span className="font-semibold text-orange-700">{streak} {t('dailyCoach.streak')}</span>
+          {/* Streak */}
+          <div className="flex items-center gap-2 bg-gradient-to-r from-orange-50 to-amber-50 px-4 py-2.5 rounded-full border border-orange-100">
+            <Flame className="h-4 w-4 text-orange-500" />
+            <span className="text-sm font-medium text-orange-700">{streak} {t('dailyCoach.dayStreak') || 'day streak'}</span>
           </div>
+          {/* Refresh */}
           <button
             onClick={loadDailyPlan}
-            className="p-2 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors"
+            className="p-2.5 rounded-xl bg-surface-100 hover:bg-surface-200 transition-all duration-200 hover:scale-105"
+            title={t('dailyCoach.refresh') || 'Refresh plan'}
           >
-            <RefreshCw className="h-5 w-5 text-gray-600" />
+            <RefreshCw className="h-5 w-5 text-text-secondary" />
           </button>
         </div>
       </div>
 
-      {/* Progress Overview */}
-      <div className="bg-gradient-to-r from-primary-500 to-purple-600 rounded-2xl p-6 text-white">
-        <div className="flex items-center justify-between mb-4">
+      {/* Progress Card - Soft and Encouraging */}
+      <div className="bg-gradient-to-br from-primary-500 via-primary-600 to-primary-700 rounded-3xl p-6 text-white shadow-soft-lg">
+        <div className="flex items-center justify-between mb-5">
           <div>
-            <p className="text-sm opacity-90">{t('dailyCoach.todayProgress')}</p>
+            <p className="text-sm text-white/80 mb-1">{t('dailyCoach.todayProgress') || "Today's progress"}</p>
             <p className="text-3xl font-bold">
-              {completedCount}/{tasks.length} {t('dailyCoach.tasks')}
+              {completedCount} <span className="text-lg font-normal text-white/70">/ {tasks.length}</span>
             </p>
+            <p className="text-sm text-white/70 mt-1">{t('dailyCoach.tasksCompleted') || 'tasks completed'}</p>
           </div>
           <div className="text-right">
-            <p className="text-sm opacity-90">{t('dailyCoach.timeInvested')}</p>
+            <p className="text-sm text-white/80 mb-1">{t('dailyCoach.timeSpent') || 'Time invested'}</p>
             <p className="text-2xl font-bold">
-              {completedTime}/{totalTime} {t('dailyCoach.min')}
+              {completedTime} <span className="text-lg font-normal text-white/70">min</span>
             </p>
           </div>
         </div>
-        <div className="w-full bg-white/20 rounded-full h-3">
+        {/* Progress Bar */}
+        <div className="w-full bg-white/20 rounded-full h-2.5 overflow-hidden">
           <div
-            className="bg-white rounded-full h-3 transition-all duration-500"
+            className="bg-white rounded-full h-2.5 transition-all duration-700 ease-out"
             style={{ width: `${(completedCount / Math.max(tasks.length, 1)) * 100}%` }}
           />
         </div>
+        {/* Completion Message */}
         {completedCount === tasks.length && tasks.length > 0 && (
-          <div className="mt-4 flex items-center gap-2">
+          <div className="mt-4 flex items-center gap-2 bg-white/20 rounded-xl px-4 py-2.5 backdrop-blur-sm">
             <Trophy className="h-5 w-5 text-yellow-300" />
-            <span className="font-medium">{t('dailyCoach.allComplete')} 🎉</span>
+            <span className="font-medium">{t('dailyCoach.allDone') || "Amazing! You've completed today's plan!"}</span>
           </div>
         )}
       </div>
 
-      {/* Task List */}
+      {/* Task List - Clean and Calm */}
       <div className="space-y-4">
-        <h2 className="font-semibold text-lg text-gray-900">{t('dailyCoach.todayTasks')}</h2>
+        <h2 className="font-semibold text-lg text-text-primary">{t('dailyCoach.todayTasks') || "Today's tasks"}</h2>
         
         {tasks.length === 0 ? (
-          <div className="text-center py-12 bg-gray-50 rounded-2xl">
-            <Calendar className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-            <p className="text-gray-600">{t('dailyCoach.noTasks')}</p>
+          <div className="text-center py-16 bg-surface-50 rounded-3xl border border-surface-200">
+            <div className="w-16 h-16 bg-surface-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <Calendar className="h-8 w-8 text-text-muted" />
+            </div>
+            <p className="text-text-secondary">{t('dailyCoach.noTasks') || 'No tasks for today yet'}</p>
           </div>
         ) : (
           <div className="space-y-3">
-            {tasks.map((task) => (
+            {tasks.map((task, index) => (
               <div
                 key={task.id}
-                className={`bg-white rounded-xl p-4 border transition-all ${
+                className={`bg-white rounded-2xl p-5 border-2 transition-all duration-300 animate-fade-in-up ${
                   task.completed
-                    ? 'border-green-200 bg-green-50/50'
-                    : 'border-gray-100 hover:border-primary-200 hover:shadow-md'
+                    ? 'border-accent-200 bg-gradient-to-r from-accent-50/50 to-white'
+                    : 'border-surface-200 hover:border-primary-200 hover:shadow-soft'
                 }`}
+                style={{ animationDelay: `${index * 50}ms` }}
               >
                 <div className="flex items-start gap-4">
-                  {/* Completion Toggle - Checkbox that can be checked AND unchecked */}
-                  <div className="mt-1 flex-shrink-0 relative">
+                  {/* Custom Checkbox - Large and Satisfying */}
+                  <div className="mt-0.5 flex-shrink-0">
                     {completingTask === task.id ? (
-                      <div className="h-6 w-6 border-2 border-primary-300 border-t-primary-600 rounded-full animate-spin" />
+                      <div className="h-7 w-7 border-2 border-primary-300 border-t-primary-500 rounded-lg animate-spin" />
                     ) : (
-                      <label className="cursor-pointer flex items-center">
+                      <label className="cursor-pointer group">
                         <input
                           type="checkbox"
                           checked={task.completed}
@@ -208,60 +226,59 @@ const DailyCoach = () => {
                           className="sr-only"
                           aria-label={task.completed ? t('dailyCoach.markIncomplete') : t('dailyCoach.markComplete')}
                         />
-                        {task.completed ? (
-                          <CheckCircle className="h-6 w-6 text-green-500 hover:text-green-600 transition-colors" />
-                        ) : (
-                          <Circle className="h-6 w-6 text-gray-300 hover:text-primary-500 transition-colors" />
-                        )}
+                        <div className={`h-7 w-7 rounded-lg border-2 flex items-center justify-center transition-all duration-200 ${
+                          task.completed 
+                            ? 'bg-accent-300 border-accent-300' 
+                            : 'border-surface-300 group-hover:border-primary-400 group-hover:bg-primary-50'
+                        }`}>
+                          {task.completed && (
+                            <Check className="h-4 w-4 text-white animate-check" />
+                          )}
+                        </div>
                       </label>
                     )}
                   </div>
 
                   {/* Task Content */}
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-1">
-                      {getTaskIcon(task.type)}
-                      <h3
-                        className={`font-medium ${
-                          task.completed ? 'text-gray-500 line-through' : 'text-gray-900'
-                        }`}
-                      >
+                    <div className="flex items-center gap-2 mb-1.5">
+                      <div className={`p-1.5 rounded-lg ${task.completed ? 'bg-accent-100' : 'bg-surface-100'}`}>
+                        {getTaskIcon(task.type)}
+                      </div>
+                      <h3 className={`font-medium text-[15px] ${
+                        task.completed ? 'text-text-muted line-through' : 'text-text-primary'
+                      }`}>
                         {task.title}
                       </h3>
                     </div>
-                    <p className="text-sm text-gray-600 mb-2">{task.description}</p>
+                    <p className={`text-sm mb-3 ${task.completed ? 'text-text-muted' : 'text-text-secondary'}`}>
+                      {task.description}
+                    </p>
                     
-                    {/* Meta */}
+                    {/* Meta Tags */}
                     <div className="flex flex-wrap items-center gap-2">
-                      <span className="flex items-center gap-1 text-xs text-gray-500">
+                      <span className="flex items-center gap-1.5 text-xs text-text-muted bg-surface-50 px-2.5 py-1 rounded-full">
                         <Clock className="h-3 w-3" />
                         {task.estimatedTime} min
                       </span>
-                      <span
-                        className={`text-xs px-2 py-0.5 rounded-full ${getPriorityColor(
-                          task.priority
-                        )}`}
-                      >
-                        {task.priority}
-                      </span>
-                      <span className="text-xs px-2 py-0.5 rounded-full bg-gray-100 text-gray-600">
-                        {task.type}
+                      <span className={`text-xs px-2.5 py-1 rounded-full font-medium ${getPriorityColor(task.priority)}`}>
+                        {task.priority === 'high' ? '!' : ''} {task.priority}
                       </span>
                     </div>
 
                     {/* Resources */}
                     {task.resources.length > 0 && !task.completed && (
-                      <div className="mt-3 flex flex-wrap gap-2">
+                      <div className="mt-3 pt-3 border-t border-surface-100 flex flex-wrap gap-2">
                         {task.resources.slice(0, 2).map((resource, i) => (
                           <a
                             key={i}
                             href={resource.includes('http') ? resource : '#'}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="text-xs text-primary-600 hover:text-primary-700 flex items-center gap-1"
+                            className="text-xs text-primary-500 hover:text-primary-600 flex items-center gap-1.5 bg-primary-50 px-3 py-1.5 rounded-full transition-colors"
                           >
                             <ExternalLink className="h-3 w-3" />
-                            {resource.length > 30 ? resource.slice(0, 30) + '...' : resource}
+                            {resource.length > 25 ? resource.slice(0, 25) + '...' : resource}
                           </a>
                         ))}
                       </div>
@@ -274,24 +291,29 @@ const DailyCoach = () => {
         )}
       </div>
 
-      {/* Daily Quiz Section */}
+      {/* Daily Quiz Section - Modern Card */}
       {quizQuestions.length > 0 && (
-        <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-2xl p-6 border border-purple-100">
-          <div className="flex items-center justify-between">
-            <div>
-              <h3 className="font-semibold text-gray-900 flex items-center gap-2">
-                🧠 {t('dailyCoach.knowledgeCheck')}
-              </h3>
-              <p className="text-sm text-gray-600 mt-1">
-                {t('dailyCoach.testUnderstanding')} {quizQuestions.length} {t('dailyCoach.questions')}
-              </p>
+        <div className="bg-gradient-to-br from-purple-50 via-pink-50 to-orange-50 rounded-3xl p-6 border border-purple-100/50 shadow-soft">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="flex items-center gap-4">
+              <div className="p-3 bg-gradient-to-br from-purple-500 to-pink-500 rounded-2xl shadow-soft">
+                <Brain className="h-6 w-6 text-white" />
+              </div>
+              <div>
+                <h3 className="font-semibold text-text-primary">
+                  {t('dailyCoach.knowledgeCheck') || 'Quick Knowledge Check'}
+                </h3>
+                <p className="text-sm text-text-secondary mt-0.5">
+                  {t('dailyCoach.testYourself') || 'Test what you learned today'} • {quizQuestions.length} {t('dailyCoach.questions') || 'questions'}
+                </p>
+              </div>
             </div>
             <button
               onClick={() => setShowQuiz(true)}
-              className="flex items-center gap-2 bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors"
+              className="flex items-center justify-center gap-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white px-6 py-3 rounded-full font-medium shadow-soft hover:shadow-lg hover:scale-[1.02] transition-all duration-200"
             >
               <Play className="h-4 w-4" />
-              {t('dailyCoach.startQuiz')}
+              {t('dailyCoach.takeQuiz') || 'Take Quiz'}
             </button>
           </div>
         </div>

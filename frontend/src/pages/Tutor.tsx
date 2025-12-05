@@ -6,7 +6,6 @@ import { tutorApi } from '../api';
 import ChatBubble from '../components/ChatBubble';
 import MicrophoneButton from '../components/MicrophoneButton';
 import TypingIndicator from '../components/TypingIndicator';
-import QuickActions from '../components/QuickActions';
 import ChatHistorySidebar from '../components/ChatHistorySidebar';
 import { useSpeechRecognition } from '../hooks/useSpeechRecognition';
 import { useTextToSpeech } from '../hooks/useTextToSpeech';
@@ -50,7 +49,6 @@ const Tutor = () => {
     isSpeaking,
     isSupported: ttsSupported,
     isLanguageSupported: ttsLanguageSupported,
-    unsupportedMessage: ttsUnsupportedMessage,
   } = useTextToSpeech(language);
 
   const location = useLocation();
@@ -189,8 +187,8 @@ const Tutor = () => {
       {/* Mobile History Sidebar */}
       {user && showHistory && (
         <div className="fixed inset-0 z-50 md:hidden">
-          <div className="absolute inset-0 bg-black/50" onClick={() => setShowHistory(false)} />
-          <div className="absolute left-0 top-0 h-full w-72 bg-white">
+          <div className="absolute inset-0 bg-black/30 backdrop-blur-sm animate-fade-in" onClick={() => setShowHistory(false)} />
+          <div className="absolute left-0 top-0 h-full w-72 bg-white shadow-soft-lg animate-slide-in">
             <ChatHistorySidebar
               currentHistoryId={historyId}
               onSelectHistory={handleSelectHistory}
@@ -204,99 +202,113 @@ const Tutor = () => {
 
       {/* Main Chat Area */}
       <div className="flex-1 flex flex-col min-w-0">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-3">
+        {/* Header - Friendly and Warm */}
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center gap-4">
             {user && (
               <button
                 onClick={() => setShowHistory(!showHistory)}
-                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-                title="Chat History"
+                className="p-2.5 hover:bg-surface-100 rounded-xl transition-all duration-200 hover:scale-105"
+                title={t('tutor.chatHistory') || 'Past conversations'}
               >
-                <History className="h-5 w-5 text-gray-600" />
+                <History className="h-5 w-5 text-text-secondary" />
               </button>
             )}
             <div>
-              <div className="inline-flex items-center gap-2 rounded-full bg-primary-100 px-3 py-1 text-sm font-medium text-primary-700 mb-2">
-                <MessageCircle className="h-4 w-4" />
-                AI Tutor
-              </div>
-              <h1 className="text-2xl font-bold text-gray-900">{t('tutor.title')}</h1>
+              <h1 className="text-2xl font-bold text-text-primary">{t('tutor.title') || 'Your AI Tutor'}</h1>
+              <p className="text-sm text-text-muted">{t('tutor.subtitle') || 'Ask me anything, I\'m here to help!'}</p>
             </div>
           </div>
           <div className="flex items-center gap-2">
-            {/* Voice Mode Toggle - Only show for supported languages */}
+            {/* Voice Mode Toggle */}
             {ttsSupported && ttsLanguageSupported && (
               <button
                 onClick={() => {
                   if (isSpeaking) stopSpeaking();
                   setVoiceMode(!voiceMode);
                 }}
-                className={`flex items-center gap-2 rounded-lg border px-3 py-2 text-sm transition-colors ${
+                className={`flex items-center gap-2 px-4 py-2.5 rounded-full text-sm font-medium transition-all duration-200 hover:scale-[1.02] ${
                   voiceMode
-                    ? 'border-primary-500 bg-primary-50 text-primary-700'
-                    : 'border-gray-200 text-gray-600 hover:bg-gray-50'
+                    ? 'bg-primary-100 text-primary-600 shadow-soft'
+                    : 'bg-surface-100 text-text-secondary hover:bg-surface-200'
                 }`}
               >
                 {voiceMode ? <Volume2 className="h-4 w-4" /> : <VolumeX className="h-4 w-4" />}
-                Voice {voiceMode ? 'On' : 'Off'}
+                <span className="hidden sm:inline">{voiceMode ? t('tutor.voiceOn') || 'Voice On' : t('tutor.voiceOff') || 'Voice Off'}</span>
               </button>
             )}
-            {/* Show message when language doesn't support TTS */}
-            {ttsSupported && !ttsLanguageSupported && ttsUnsupportedMessage && (
-              <div className="flex items-center gap-2 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-700">
+            {/* TTS Not Available Notice - Soft and Non-intrusive */}
+            {ttsSupported && !ttsLanguageSupported && (
+              <div className="hidden sm:flex items-center gap-2 px-4 py-2.5 rounded-full bg-amber-50 text-amber-700 text-sm">
                 <VolumeX className="h-4 w-4" />
-                <span className="hidden sm:inline">Voice not available</span>
+                <span>{t('tutor.voiceNotAvailable') || 'Voice not available for this language yet'}</span>
               </div>
             )}
             {messages.length > 0 && (
               <button
                 onClick={clearChat}
-                className="flex items-center gap-2 rounded-lg border border-gray-200 px-3 py-2 text-sm text-gray-600 hover:bg-gray-50 transition-colors"
+                className="flex items-center gap-2 px-4 py-2.5 rounded-full bg-surface-100 text-text-secondary text-sm font-medium hover:bg-red-50 hover:text-red-600 transition-all duration-200"
               >
                 <Trash2 className="h-4 w-4" />
-                Clear
+                <span className="hidden sm:inline">{t('tutor.clear') || 'Start fresh'}</span>
               </button>
             )}
           </div>
         </div>
 
-        {/* Chat Area */}
-        <div className="flex-1 overflow-y-auto rounded-xl border border-gray-200 bg-white p-4">
+        {/* Chat Area - Modern and Clean */}
+        <div className="flex-1 overflow-y-auto rounded-3xl bg-white shadow-card p-6 scrollbar-thin">
           {messages.length === 0 ? (
-            <div className="flex flex-col items-center justify-center h-full text-center">
-              <div className="h-20 w-20 rounded-full overflow-hidden mb-4 shadow-lg">
-                <AiMentorAvatar className="h-20 w-20" />
+            <div className="flex flex-col items-center justify-center h-full text-center px-4 animate-fade-in-up">
+              {/* Friendly Mentor Avatar */}
+              <div className="relative mb-6">
+                <div className="h-24 w-24 rounded-full overflow-hidden shadow-soft-lg ring-4 ring-primary-100">
+                  <AiMentorAvatar className="h-24 w-24" />
+                </div>
+                <div className="absolute -bottom-1 -right-1 w-8 h-8 bg-accent-300 rounded-full flex items-center justify-center shadow-soft">
+                  <MessageCircle className="h-4 w-4 text-white" />
+                </div>
               </div>
-              <h3 className="text-lg font-medium text-gray-900 mb-2">Start a conversation</h3>
-              <p className="text-gray-500 max-w-sm">
-                Ask me anything about STEM concepts, career advice, or your learning journey. I can respond in English, Amharic, Oromiffa, Tigrigna, or Somali!
+              
+              <h3 className="text-xl font-semibold text-text-primary mb-2">
+                {t('tutor.startConversation') || 'Hi! I\'m here to help you learn'}
+              </h3>
+              <p className="text-text-secondary max-w-md mb-8 leading-relaxed">
+                {t('tutor.askAnything') || 'Ask me anything about your studies, career path, or just say hello. I speak English, Amharic, Oromiffa, Tigrigna, and Somali!'}
               </p>
-              <div className="mt-6 flex flex-wrap justify-center gap-2">
+              
+              {/* Friendly Suggestions */}
+              <div className="flex flex-wrap justify-center gap-3 max-w-lg">
                 {[
-                  'Explain machine learning',
-                  'What is recursion?',
-                  'How do databases work?',
-                ].map((suggestion) => (
+                  { text: t('tutor.suggestion1') || 'Help me understand coding', icon: '💻' },
+                  { text: t('tutor.suggestion2') || 'What career suits me?', icon: '🎯' },
+                  { text: t('tutor.suggestion3') || 'Explain this concept simply', icon: '💡' },
+                ].map((suggestion, index) => (
                   <button
-                    key={suggestion}
-                    onClick={() => setInput(suggestion)}
-                    className="rounded-full bg-gray-100 px-4 py-2 text-sm text-gray-700 hover:bg-gray-200 transition-colors"
+                    key={index}
+                    onClick={() => setInput(suggestion.text)}
+                    className="flex items-center gap-2 px-5 py-3 rounded-full bg-surface-50 border border-surface-200 text-text-secondary hover:bg-primary-50 hover:border-primary-200 hover:text-primary-600 transition-all duration-200 hover:scale-[1.02] hover:shadow-soft"
                   >
-                    {suggestion}
+                    <span>{suggestion.icon}</span>
+                    <span className="text-sm font-medium">{suggestion.text}</span>
                   </button>
                 ))}
               </div>
             </div>
           ) : (
             <div className="space-y-4">
-              {messages.map((message) => (
-                <ChatBubble
-                  key={message.id}
-                  role={message.role}
-                  content={message.content}
-                  timestamp={message.timestamp}
-                />
+              {messages.map((message, index) => (
+                <div 
+                  key={message.id} 
+                  className="animate-fade-in-up"
+                  style={{ animationDelay: `${index * 50}ms` }}
+                >
+                  <ChatBubble
+                    role={message.role}
+                    content={message.content}
+                    timestamp={message.timestamp}
+                  />
+                </div>
               ))}
               {loading && <TypingIndicator />}
               <div ref={messagesEndRef} />
@@ -304,22 +316,27 @@ const Tutor = () => {
           )}
         </div>
 
-        {/* Input Area */}
+        {/* Input Area - Warm and Inviting */}
         <div className="mt-4 flex items-end gap-3">
           <div className="flex-1 relative">
             <textarea
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyPress={handleKeyPress}
-              placeholder={t('tutor.placeholder')}
+              placeholder={t('tutor.placeholder') || 'Type your question here...'}
               rows={1}
-              className="w-full resize-none rounded-xl border border-gray-200 py-3 pl-4 pr-12 text-gray-900 placeholder-gray-400 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-100"
-              style={{ minHeight: '48px', maxHeight: '120px' }}
+              className="w-full resize-none rounded-2xl bg-white border border-surface-200 py-4 pl-5 pr-14 text-text-primary placeholder-text-muted shadow-soft focus:border-primary-400 focus:outline-none focus:ring-4 focus:ring-primary-100/50 transition-all duration-200"
+              style={{ minHeight: '56px', maxHeight: '120px' }}
             />
             {isListening && (
-              <div className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-red-500 animate-pulse flex items-center gap-1">
-                <span className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>
-                {transcript ? transcript.slice(0, 30) + (transcript.length > 30 ? '...' : '') : t('tutor.listening')}
+              <div className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-2">
+                <span className="flex h-3 w-3">
+                  <span className="animate-ping absolute h-3 w-3 rounded-full bg-red-400 opacity-75"></span>
+                  <span className="relative rounded-full h-3 w-3 bg-red-500"></span>
+                </span>
+                <span className="text-xs text-red-500 font-medium">
+                  {transcript ? transcript.slice(0, 20) + (transcript.length > 20 ? '...' : '') : t('tutor.listening') || 'Listening...'}
+                </span>
               </div>
             )}
           </div>
@@ -332,7 +349,7 @@ const Tutor = () => {
           <button
             onClick={handleSend}
             disabled={!input.trim() || loading}
-            className="rounded-full bg-primary-600 p-3 text-white hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            className="btn-primary !p-4 !rounded-2xl shadow-button disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
           >
             {loading ? (
               <Loader2 className="h-5 w-5 animate-spin" />
@@ -342,16 +359,27 @@ const Tutor = () => {
           </button>
         </div>
 
-        {/* Quick Actions */}
+        {/* Quick Actions - Friendly and Helpful */}
         {messages.length > 0 && (
-          <QuickActions
-            onAction={(prompt) => {
-              setInput(prompt);
-              handleSend();
-            }}
-            disabled={loading}
-            context={messages[messages.length - 1]?.content}
-          />
+          <div className="mt-4 flex flex-wrap gap-2">
+            {[
+              { label: t('tutor.explainSimply') || 'Explain simply', icon: '✨' },
+              { label: t('tutor.giveExample') || 'Give me an example', icon: '📝' },
+              { label: t('tutor.showSteps') || 'Show me the steps', icon: '📋' },
+            ].map((action, index) => (
+              <button
+                key={index}
+                onClick={() => {
+                  setInput(action.label);
+                }}
+                disabled={loading}
+                className="flex items-center gap-2 px-4 py-2 rounded-full bg-surface-50 border border-surface-200 text-sm text-text-secondary hover:bg-primary-50 hover:border-primary-200 hover:text-primary-600 disabled:opacity-50 transition-all duration-200"
+              >
+                <span>{action.icon}</span>
+                {action.label}
+              </button>
+            ))}
+          </div>
         )}
       </div>
     </div>

@@ -3,19 +3,16 @@ import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
 import { useIdleLogout } from '../hooks/useIdleLogout';
 import {
-  Target,
   MessageCircle,
   Briefcase,
   User,
   LogOut,
   Menu,
   X,
-  BarChart3,
-  Calendar,
-  Brain,
+  Sparkles,
   Users,
   HelpCircle,
-  Crown,
+  Compass,
 } from 'lucide-react';
 import { useState } from 'react';
 import LanguageSelector from './LanguageSelector';
@@ -29,20 +26,19 @@ const Layout = () => {
 
   // Auto-logout after 15 minutes of inactivity
   useIdleLogout({
-    idleTime: 15 * 60 * 1000, // 15 minutes
-    enabled: !!user, // Only enable when user is logged in
+    idleTime: 15 * 60 * 1000,
+    enabled: !!user,
   });
 
+  // Friendly navigation with clean icons and simple labels
   const navItems = [
-    { path: '/career-goal', icon: Target, label: t('nav.career') },
-    { path: '/daily-coach', icon: Calendar, label: t('nav.dailyCoach') },
-    { path: '/tutor', icon: MessageCircle, label: t('nav.tutor') },
-    { path: '/quiz', icon: Brain, label: t('nav.quiz') },
-    { path: '/opportunities', icon: Briefcase, label: t('nav.opportunities') },
-    { path: '/mentors', icon: Users, label: t('nav.mentors') },
-    { path: '/analytics', icon: BarChart3, label: t('nav.analytics') },
-    { path: '/help', icon: HelpCircle, label: t('nav.help') },
-    { path: '/profile', icon: User, label: t('nav.profile') },
+    { path: '/career-goal', icon: Compass, label: t('nav.roadmap') || 'My Roadmap' },
+    { path: '/daily-coach', icon: Sparkles, label: t('nav.dailyCoach') || 'Daily Coach' },
+    { path: '/tutor', icon: MessageCircle, label: t('nav.tutor') || 'AI Tutor' },
+    { path: '/opportunities', icon: Briefcase, label: t('nav.opportunities') || 'Opportunities' },
+    { path: '/mentors', icon: Users, label: t('nav.mentors') || 'Mentors' },
+    { path: '/profile', icon: User, label: t('nav.account') || 'Account' },
+    { path: '/help', icon: HelpCircle, label: t('nav.help') || 'Help' },
   ];
 
   const handleLogout = async () => {
@@ -53,110 +49,118 @@ const Layout = () => {
   const isActive = (path: string) => location.pathname === path;
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Desktop Sidebar */}
-      <aside className="fixed left-0 top-0 z-40 hidden h-screen w-64 border-r border-gray-200 bg-white md:block">
+    <div className="min-h-screen bg-surface-50">
+      {/* Desktop Sidebar - Modern, Clean Design */}
+      <aside className="fixed left-0 top-0 z-40 hidden h-screen w-72 bg-white/80 backdrop-blur-xl border-r border-surface-200 md:block">
         <div className="flex h-full flex-col">
-          {/* Logo */}
-          <div className="flex h-16 items-center gap-2 border-b border-gray-200 px-6">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary-600 text-white font-bold">
+          {/* Logo - Friendly and Warm */}
+          <div className="flex h-20 items-center gap-3 px-6">
+            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-primary-500 to-primary-600 text-white font-bold text-lg shadow-button">
               Q
             </div>
-            <span className="text-xl font-bold text-gray-900">QineGuide</span>
+            <div>
+              <span className="text-xl font-bold text-text-primary">QineGuide</span>
+              <p className="text-xs text-text-muted">{t('nav.tagline') || 'Your learning companion'}</p>
+            </div>
           </div>
 
-          {/* Navigation */}
-          <nav className="flex-1 space-y-1 px-3 py-4">
-            {navItems.map((item) => (
+          {/* Navigation - Clean Icons with Friendly Labels */}
+          <nav className="flex-1 px-4 py-6 space-y-1">
+            {navItems.map((item, index) => (
               <Link
                 key={item.path}
                 to={item.path}
-                className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${
+                className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 ${
                   isActive(item.path)
-                    ? 'bg-primary-50 text-primary-700'
-                    : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
+                    ? 'bg-primary-50 text-primary-600 shadow-soft'
+                    : 'text-text-secondary hover:bg-surface-100 hover:text-text-primary'
                 }`}
+                style={{ animationDelay: `${index * 50}ms` }}
               >
-                <item.icon className="h-5 w-5" />
+                <div className={`p-2 rounded-lg ${isActive(item.path) ? 'bg-primary-100' : 'bg-surface-100'}`}>
+                  <item.icon className="h-4 w-4" />
+                </div>
                 {item.label}
               </Link>
             ))}
           </nav>
 
-          {/* User section */}
-          <div className="border-t border-gray-200 p-4">
-            {/* Become a Member Button */}
-            <Link
-              to="/membership"
-              className="mb-4 flex items-center justify-center gap-2 w-full bg-gradient-to-r from-yellow-400 to-amber-500 text-white px-4 py-2.5 rounded-lg font-medium hover:from-yellow-500 hover:to-amber-600 transition-all shadow-sm"
-            >
-              <Crown className="h-4 w-4" />
-              {t('nav.membership')}
-            </Link>
-            <div className="mb-4">
-              <LanguageSelector />
-            </div>
-            <div className="flex items-center gap-3 rounded-lg bg-gray-50 p-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary-100 text-primary-700 font-medium">
-                {user?.displayName?.[0] || user?.email?.[0] || 'U'}
+          {/* User Section - Warm and Personal */}
+          <div className="p-4 space-y-4">
+            {/* Language Selector */}
+            <LanguageSelector />
+            
+            {/* User Profile Card */}
+            <div className="bg-gradient-to-br from-surface-50 to-surface-100 rounded-2xl p-4">
+              <div className="flex items-center gap-3">
+                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-primary-400 to-primary-600 text-white font-semibold text-lg shadow-soft">
+                  {user?.displayName?.[0] || user?.email?.[0] || 'U'}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-semibold text-text-primary truncate">
+                    {user?.displayName || t('nav.user') || 'Welcome!'}
+                  </p>
+                  <p className="text-xs text-text-muted truncate">{user?.email}</p>
+                </div>
               </div>
-              <div className="flex-1 truncate">
-                <p className="text-sm font-medium text-gray-900 truncate">
-                  {user?.displayName || 'User'}
-                </p>
-                <p className="text-xs text-gray-500 truncate">{user?.email}</p>
-              </div>
+              <button
+                onClick={handleLogout}
+                className="mt-4 flex w-full items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium text-text-secondary hover:text-red-600 hover:bg-red-50 transition-all duration-200"
+              >
+                <LogOut className="h-4 w-4" />
+                {t('nav.logout') || 'Sign out'}
+              </button>
             </div>
-            <button
-              onClick={handleLogout}
-              className="mt-3 flex w-full items-center justify-center gap-2 rounded-lg border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
-            >
-              <LogOut className="h-4 w-4" />
-              {t('nav.logout')}
-            </button>
           </div>
         </div>
       </aside>
 
-      {/* Mobile Header */}
-      <header className="fixed left-0 right-0 top-0 z-50 flex h-16 items-center justify-between border-b border-gray-200 bg-white px-4 md:hidden">
-        <div className="flex items-center gap-2">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary-600 text-white font-bold">
+      {/* Mobile Header - Clean and Simple */}
+      <header className="fixed left-0 right-0 top-0 z-50 flex h-16 items-center justify-between bg-white/90 backdrop-blur-lg border-b border-surface-200 px-4 md:hidden">
+        <div className="flex items-center gap-3">
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-primary-500 to-primary-600 text-white font-bold shadow-button">
             Q
           </div>
-          <span className="text-lg font-bold text-gray-900">QineGuide</span>
+          <span className="text-lg font-bold text-text-primary">QineGuide</span>
         </div>
-        <button
-          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-          className="rounded-lg p-2 text-gray-600 hover:bg-gray-100"
-        >
-          {isMobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            className="p-2.5 rounded-xl text-text-secondary hover:bg-surface-100 transition-colors"
+          >
+            {isMobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+          </button>
+        </div>
       </header>
 
-      {/* Mobile Menu */}
+      {/* Mobile Menu - Smooth Slide-in */}
       {isMobileMenuOpen && (
         <div className="fixed inset-0 z-40 md:hidden">
-          <div className="fixed inset-0 bg-black/50" onClick={() => setIsMobileMenuOpen(false)} />
-          <div className="fixed right-0 top-0 h-full w-64 bg-white shadow-xl">
-            <div className="flex h-16 items-center justify-end px-4">
+          <div 
+            className="fixed inset-0 bg-black/30 backdrop-blur-sm animate-fade-in" 
+            onClick={() => setIsMobileMenuOpen(false)} 
+          />
+          <div className="fixed right-0 top-0 h-full w-72 bg-white shadow-soft-lg animate-slide-in-right">
+            <div className="flex h-16 items-center justify-between px-4 border-b border-surface-200">
+              <span className="font-semibold text-text-primary">{t('nav.menu') || 'Menu'}</span>
               <button
                 onClick={() => setIsMobileMenuOpen(false)}
-                className="rounded-lg p-2 text-gray-600 hover:bg-gray-100"
+                className="p-2 rounded-xl text-text-secondary hover:bg-surface-100 transition-colors"
               >
-                <X className="h-6 w-6" />
+                <X className="h-5 w-5" />
               </button>
             </div>
-            <nav className="space-y-1 px-3">
+            
+            <nav className="p-4 space-y-1">
               {navItems.map((item) => (
                 <Link
                   key={item.path}
                   to={item.path}
                   onClick={() => setIsMobileMenuOpen(false)}
-                  className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${
+                  className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 ${
                     isActive(item.path)
-                      ? 'bg-primary-50 text-primary-700'
-                      : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
+                      ? 'bg-primary-50 text-primary-600'
+                      : 'text-text-secondary hover:bg-surface-100'
                   }`}
                 >
                   <item.icon className="h-5 w-5" />
@@ -164,23 +168,27 @@ const Layout = () => {
                 </Link>
               ))}
             </nav>
-            <div className="absolute bottom-0 left-0 right-0 border-t border-gray-200 p-4">
+            
+            <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-surface-200 bg-white">
               <LanguageSelector />
               <button
-                onClick={handleLogout}
-                className="mt-3 flex w-full items-center justify-center gap-2 rounded-lg border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+                onClick={() => {
+                  handleLogout();
+                  setIsMobileMenuOpen(false);
+                }}
+                className="mt-3 flex w-full items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium text-text-secondary hover:text-red-600 hover:bg-red-50 transition-all"
               >
                 <LogOut className="h-4 w-4" />
-                {t('nav.logout')}
+                {t('nav.logout') || 'Sign out'}
               </button>
             </div>
           </div>
         </div>
       )}
 
-      {/* Main Content */}
-      <main className="min-h-screen pt-16 md:ml-64 md:pt-0">
-        <div className="mx-auto max-w-5xl p-4 md:p-8">
+      {/* Main Content - Clean and Spacious */}
+      <main className="min-h-screen pt-16 md:ml-72 md:pt-0">
+        <div className="mx-auto max-w-4xl p-4 md:p-8 animate-fade-in">
           <Outlet />
         </div>
       </main>
