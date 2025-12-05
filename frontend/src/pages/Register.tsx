@@ -71,9 +71,9 @@ const Register = () => {
         <div className="text-center mb-8">
           <Link to="/" className="inline-flex items-center gap-2">
             <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary-600 text-white font-bold text-xl">
-              T
+              Q
             </div>
-            <span className="text-2xl font-bold text-gray-900">TenaAI</span>
+            <span className="text-2xl font-bold text-gray-900">QineGuide</span>
           </Link>
           <h1 className="mt-6 text-2xl font-bold text-gray-900">Create your account</h1>
           <p className="mt-2 text-gray-600">Start your personalized learning journey</p>

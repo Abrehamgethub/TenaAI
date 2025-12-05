@@ -54,9 +54,9 @@ const Landing = () => {
         <div className="mx-auto max-w-6xl px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary-600 text-white font-bold text-lg">
-              T
+              Q
             </div>
-            <span className="text-xl font-bold text-gray-900">TenaAI</span>
+            <span className="text-xl font-bold text-gray-900">QineGuide</span>
           </div>
           <nav className="flex items-center gap-4">
             {user ? (
@@ -165,7 +165,7 @@ const Landing = () => {
         <div className="rounded-3xl bg-gradient-to-r from-primary-600 to-primary-700 p-12 text-center text-white">
           <h2 className="text-3xl font-bold mb-4">Ready to start your journey?</h2>
           <p className="text-primary-100 mb-8 max-w-xl mx-auto">
-            Join thousands of Ethiopian youth who are building their future with TenaAI
+            Where understanding meets purpose, guidance becomes possibility
           </p>
           <Link
             to={user ? '/career-goal' : '/register'}
@@ -182,15 +182,15 @@ const Landing = () => {
         <div className="mx-auto max-w-6xl px-4 text-center">
           <div className="flex items-center justify-center gap-2 mb-4">
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary-600 text-white font-bold">
-              T
+              Q
             </div>
-            <span className="font-bold text-gray-900">TenaAI</span>
+            <span className="font-bold text-gray-900">QineGuide</span>
           </div>
           <p className="text-sm text-gray-500">
-            Empowering Ethiopian youth through AI-powered education
+            Where understanding meets purpose, guidance becomes possibility
           </p>
           <p className="mt-4 text-xs text-gray-400">
-            &copy; {new Date().getFullYear()} TenaAI. All rights reserved.
+            &copy; {new Date().getFullYear()} QineGuide. All rights reserved.
           </p>
         </div>
       </footer>

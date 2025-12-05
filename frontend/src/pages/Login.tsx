@@ -27,13 +27,17 @@ const Login = () => {
       console.error('Login error:', err);
       const error = err as { code?: string; message?: string };
       if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
-        setError('Invalid email or password');
+        setError('Invalid email or password. Please check your credentials.');
       } else if (error.code === 'auth/invalid-credential') {
-        setError('Invalid email or password');
+        setError('Invalid email or password. Please check your credentials.');
       } else if (error.code === 'auth/too-many-requests') {
-        setError('Too many attempts. Please try again later.');
+        setError('Too many attempts. Please wait a few minutes and try again.');
       } else if (error.code === 'auth/invalid-api-key') {
         setError('Configuration error. Please contact support.');
+      } else if (error.code === 'auth/internal-error') {
+        setError('Connection error. Please check your internet and try again.');
+      } else if (error.code === 'auth/network-request-failed') {
+        setError('Network error. Please check your internet connection.');
       } else {
         setError(error.message || 'Failed to sign in. Please try again.');
       }
@@ -56,6 +60,13 @@ const Login = () => {
         setError('Sign-in was cancelled.');
       } else if (error.code === 'auth/popup-blocked') {
         setError('Pop-up was blocked. Please allow pop-ups for this site.');
+      } else if (error.code === 'auth/internal-error') {
+        setError('Connection error. Please check your internet and try again.');
+      } else if (error.code === 'auth/network-request-failed') {
+        setError('Network error. Please check your internet connection.');
+      } else if (error.code === 'auth/cancelled-popup-request') {
+        // This is normal when multiple popup requests happen, ignore it
+        setError('');
       } else {
         setError(error.message || 'Failed to sign in with Google. Please try again.');
       }
@@ -71,9 +82,9 @@ const Login = () => {
         <div className="text-center mb-8">
           <Link to="/" className="inline-flex items-center gap-2">
             <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary-600 text-white font-bold text-xl">
-              T
+              Q
             </div>
-            <span className="text-2xl font-bold text-gray-900">TenaAI</span>
+            <span className="text-2xl font-bold text-gray-900">QineGuide</span>
           </Link>
           <h1 className="mt-6 text-2xl font-bold text-gray-900">Welcome back</h1>
           <p className="mt-2 text-gray-600">Sign in to continue your learning journey</p>

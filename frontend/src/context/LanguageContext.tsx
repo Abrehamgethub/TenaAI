@@ -195,13 +195,13 @@ interface LanguageProviderProps {
 
 export const LanguageProvider = ({ children }: LanguageProviderProps) => {
   const [language, setLanguage] = useState<Language>(() => {
-    const saved = localStorage.getItem('tenaai-language');
+    const saved = localStorage.getItem('qineguide-language');
     return (saved as Language) || 'en';
   });
 
   const handleSetLanguage = (lang: Language) => {
     setLanguage(lang);
-    localStorage.setItem('tenaai-language', lang);
+    localStorage.setItem('qineguide-language', lang);
   };
 
   const t = (key: string): string => {

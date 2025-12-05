@@ -52,9 +52,9 @@ const Layout = () => {
           {/* Logo */}
           <div className="flex h-16 items-center gap-2 border-b border-gray-200 px-6">
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary-600 text-white font-bold">
-              T
+              Q
             </div>
-            <span className="text-xl font-bold text-gray-900">TenaAI</span>
+            <span className="text-xl font-bold text-gray-900">QineGuide</span>
           </div>
 
           {/* Navigation */}
@@ -106,9 +106,9 @@ const Layout = () => {
       <header className="fixed left-0 right-0 top-0 z-50 flex h-16 items-center justify-between border-b border-gray-200 bg-white px-4 md:hidden">
         <div className="flex items-center gap-2">
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary-600 text-white font-bold">
-            T
+            Q
           </div>
-          <span className="text-lg font-bold text-gray-900">TenaAI</span>
+          <span className="text-lg font-bold text-gray-900">QineGuide</span>
         </div>
         <button
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}

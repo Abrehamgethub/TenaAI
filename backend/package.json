@@ -1,7 +1,7 @@
 {
-  "name": "tenaai-backend",
+  "name": "qineguide-backend",
   "version": "1.0.0",
-  "description": "TenaAI Backend - AI-powered learning platform for Ethiopian youth",
+  "description": "QineGuide Backend - Where understanding meets purpose, guidance becomes possibility",
   "main": "dist/index.js",
   "scripts": {
     "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
@@ -11,12 +11,12 @@
     "clean": "rm -rf dist"
   },
   "keywords": [
-    "tenaai",
+    "qineguide",
     "education",
     "ai",
     "ethiopia"
   ],
-  "author": "TenaAI Team",
+  "author": "QineGuide Team",
   "license": "MIT",
   "dependencies": {
     "@google/generative-ai": "^0.21.0",
