@@ -214,66 +214,70 @@ const Mentors = () => {
 
   return (
     <div className="animate-fade-in space-y-6">
-      {/* Header */}
-      <div className="text-center">
-        <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary-100 mb-4">
-          <Users className="h-8 w-8 text-primary-600" />
+      {/* Header - Warm and Welcoming */}
+      <div className="flex items-center gap-4 mb-2">
+        <div className="p-3 bg-gradient-to-br from-primary-100 to-primary-50 rounded-2xl">
+          <Users className="h-7 w-7 text-primary-500" />
         </div>
-        <h1 className="text-3xl font-bold text-gray-900">Find a Mentor</h1>
-        <p className="mt-2 text-gray-600 max-w-2xl mx-auto">
-          Connect with experienced Ethiopian tech professionals who can guide your career journey
-        </p>
+        <div>
+          <h1 className="text-2xl font-bold text-text-primary">{t('mentors.title') || 'Meet Your Mentors'}</h1>
+          <p className="text-text-secondary">{t('mentors.subtitle') || 'Connect with experienced professionals who can guide you'}</p>
+        </div>
       </div>
 
-      {/* AI Matching Banner */}
-      <div className="bg-gradient-to-r from-primary-500 to-primary-600 rounded-2xl p-6 text-white">
+      {/* AI Matching Banner - Modern Gradient */}
+      <div className="bg-gradient-to-br from-primary-500 via-primary-600 to-primary-700 rounded-3xl p-6 text-white shadow-soft-lg">
         <div className="flex items-start gap-4">
-          <div className="p-3 bg-white/20 rounded-xl">
+          <div className="p-3 bg-white/20 rounded-2xl backdrop-blur-sm">
             <Sparkles className="h-6 w-6" />
           </div>
           <div className="flex-1">
-            <h3 className="font-semibold text-lg">AI-Powered Mentor Matching</h3>
-            <p className="text-primary-100 mt-1">
-              Based on your career goal and learning path, we recommend mentors who can best guide your journey.
+            <h3 className="font-semibold text-lg">{t('mentors.aiMatching') || 'Personalized Recommendations'}</h3>
+            <p className="text-white/80 mt-1">
+              {t('mentors.aiMatchingDesc') || 'Based on your goals, we suggest mentors who can best guide your journey.'}
             </p>
           </div>
         </div>
       </div>
 
-      {/* Search and Filters */}
-      <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
-        <div className="flex flex-col md:flex-row gap-4">
+      {/* Search and Filters - Clean Design */}
+      <div className="bg-white rounded-2xl p-5 shadow-card border border-surface-200">
+        <div className="flex flex-col md:flex-row gap-3">
           <div className="flex-1 relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-text-muted" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search by name, skill, or company..."
-              className="w-full pl-10 pr-4 py-3 rounded-lg border border-gray-200 focus:border-primary-500 focus:ring-2 focus:ring-primary-100 focus:outline-none"
+              placeholder={t('mentors.searchPlaceholder') || 'Search by name, skill, or company...'}
+              className="w-full pl-12 pr-4 py-3.5 rounded-xl bg-surface-50 border border-surface-200 text-text-primary placeholder-text-muted focus:border-primary-400 focus:bg-white focus:outline-none focus:ring-4 focus:ring-primary-100/50 transition-all"
             />
           </div>
           <button
             onClick={() => setShowFilters(!showFilters)}
-            className="flex items-center gap-2 px-4 py-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+            className={`flex items-center gap-2 px-5 py-3.5 rounded-xl font-medium transition-all duration-200 ${
+              showFilters 
+                ? 'bg-primary-50 text-primary-600 border border-primary-200' 
+                : 'bg-surface-100 text-text-secondary hover:bg-surface-200 border border-surface-200'
+            }`}
           >
             <Filter className="h-5 w-5" />
-            Filters
+            {t('mentors.filters') || 'Filters'}
           </button>
         </div>
 
         {showFilters && (
-          <div className="mt-4 pt-4 border-t border-gray-100">
-            <p className="text-sm font-medium text-gray-700 mb-2">Expertise Area</p>
+          <div className="mt-4 pt-4 border-t border-surface-100 animate-fade-in">
+            <p className="text-xs font-medium text-text-muted mb-3 uppercase tracking-wide">{t('mentors.expertiseArea') || 'Expertise Area'}</p>
             <div className="flex flex-wrap gap-2">
               {expertiseAreas.map((area) => (
                 <button
                   key={area}
                   onClick={() => setSelectedExpertise(area)}
-                  className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
+                  className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 ${
                     selectedExpertise === area
-                      ? 'bg-primary-600 text-white'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                      ? 'bg-primary-500 text-white shadow-button'
+                      : 'bg-surface-100 text-text-secondary hover:bg-surface-200 hover:scale-[1.02]'
                   }`}
                 >
                   {area}
@@ -286,27 +290,28 @@ const Mentors = () => {
 
       {/* Results Count */}
       <div className="flex items-center justify-between">
-        <p className="text-gray-600">
-          <span className="font-semibold text-gray-900">{filteredMentors.length}</span> mentors found
+        <p className="text-text-secondary">
+          <span className="font-semibold text-text-primary">{filteredMentors.length}</span> {t('mentors.found') || 'mentors found'}
         </p>
       </div>
 
-      {/* Mentor Cards */}
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {filteredMentors.map((mentor) => (
+      {/* Mentor Cards - Modern Design */}
+      <div className="grid gap-5 md:grid-cols-2">
+        {filteredMentors.map((mentor, index) => (
           <div
             key={mentor.id}
-            className="bg-white rounded-xl p-6 shadow-sm border border-gray-100 hover:shadow-md transition-shadow"
+            className="bg-white rounded-2xl p-6 shadow-card border border-surface-200 hover:shadow-soft-lg hover:-translate-y-1 transition-all duration-300 animate-fade-in-up"
+            style={{ animationDelay: `${index * 100}ms` }}
           >
             {/* Header */}
             <div className="flex items-start gap-4">
-              <div className="w-14 h-14 rounded-full bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center text-white text-xl font-bold">
+              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center text-white text-xl font-bold shadow-soft flex-shrink-0">
                 {mentor.name.split(' ').map(n => n[0]).join('')}
               </div>
               <div className="flex-1 min-w-0">
-                <h3 className="font-semibold text-gray-900 truncate">{mentor.name}</h3>
-                <p className="text-sm text-gray-600 truncate">{mentor.title}</p>
-                <div className="flex items-center gap-1 text-sm text-gray-500 mt-1">
+                <h3 className="font-semibold text-text-primary truncate text-lg">{mentor.name}</h3>
+                <p className="text-sm text-text-secondary truncate">{mentor.title}</p>
+                <div className="flex items-center gap-1.5 text-sm text-text-muted mt-1">
                   <Briefcase className="h-3.5 w-3.5" />
                   <span className="truncate">{mentor.company}</span>
                 </div>
@@ -315,54 +320,54 @@ const Mentors = () => {
 
             {/* Availability Badge */}
             <div className="mt-4">
-              <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${getAvailabilityColor(mentor.availability)}`}>
+              <span className={`inline-flex items-center px-3 py-1.5 rounded-full text-xs font-medium ${getAvailabilityColor(mentor.availability)}`}>
                 {getAvailabilityText(mentor.availability)}
               </span>
             </div>
 
             {/* Bio */}
-            <p className="mt-3 text-sm text-gray-600 line-clamp-2">{mentor.bio}</p>
+            <p className="mt-4 text-sm text-text-secondary leading-relaxed line-clamp-2">{mentor.bio}</p>
 
             {/* Expertise Tags */}
-            <div className="mt-4 flex flex-wrap gap-1.5">
+            <div className="mt-4 flex flex-wrap gap-2">
               {mentor.expertise.slice(0, 3).map((skill) => (
                 <span
                   key={skill}
-                  className="px-2 py-0.5 bg-gray-100 text-gray-700 rounded text-xs"
+                  className="px-3 py-1 bg-surface-100 text-text-secondary rounded-full text-xs font-medium"
                 >
                   {skill}
                 </span>
               ))}
               {mentor.expertise.length > 3 && (
-                <span className="px-2 py-0.5 bg-gray-100 text-gray-500 rounded text-xs">
+                <span className="px-3 py-1 bg-surface-100 text-text-muted rounded-full text-xs">
                   +{mentor.expertise.length - 3}
                 </span>
               )}
             </div>
 
             {/* Stats */}
-            <div className="mt-4 flex items-center gap-4 text-sm text-gray-500">
-              <div className="flex items-center gap-1">
-                <Star className="h-4 w-4 text-yellow-500 fill-yellow-500" />
-                <span>{mentor.rating}</span>
+            <div className="mt-4 flex items-center gap-4 text-sm text-text-muted">
+              <div className="flex items-center gap-1.5">
+                <Star className="h-4 w-4 text-amber-400 fill-amber-400" />
+                <span className="font-medium text-text-secondary">{mentor.rating}</span>
               </div>
-              <div className="flex items-center gap-1">
+              <div className="flex items-center gap-1.5">
                 <Users className="h-4 w-4" />
-                <span>{mentor.mentees} mentees</span>
+                <span>{mentor.mentees} {t('mentors.mentees') || 'mentees'}</span>
               </div>
-              <div className="flex items-center gap-1">
+              <div className="flex items-center gap-1.5">
                 <MapPin className="h-4 w-4" />
                 <span>{mentor.location.split(' / ')[0]}</span>
               </div>
             </div>
 
-            {/* Actions - Single LinkedIn button only */}
+            {/* LinkedIn Button - Clean Design */}
             <div className="mt-5">
               <a
                 href={getLinkedInSearchUrl(mentor.fullName)}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium text-sm"
+                className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-[#0A66C2] text-white rounded-xl hover:bg-[#004182] transition-all duration-200 font-medium text-sm shadow-soft hover:shadow-lg hover:scale-[1.02]"
               >
                 <Linkedin className="h-4 w-4" />
                 {t('mentors.viewProfile') || 'View LinkedIn Profile'}
@@ -373,20 +378,25 @@ const Mentors = () => {
       </div>
 
       {filteredMentors.length === 0 && (
-        <div className="text-center py-12">
-          <Users className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-          <h3 className="text-lg font-medium text-gray-900">No mentors found</h3>
-          <p className="text-gray-500 mt-1">Try adjusting your search or filters</p>
+        <div className="text-center py-16 bg-surface-50 rounded-3xl border border-surface-200">
+          <div className="w-16 h-16 bg-surface-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <Users className="h-8 w-8 text-text-muted" />
+          </div>
+          <h3 className="text-lg font-medium text-text-primary">{t('mentors.noResults') || 'No mentors found'}</h3>
+          <p className="text-text-secondary mt-1">{t('mentors.tryAdjusting') || 'Try adjusting your search or filters'}</p>
         </div>
       )}
 
-      {/* Become a Mentor CTA */}
-      <div className="bg-gray-50 rounded-xl p-6 text-center">
-        <h3 className="font-semibold text-gray-900">{t('mentors.ctaTitle') || 'Are you an experienced professional?'}</h3>
-        <p className="text-gray-600 mt-1">{t('mentors.ctaSubtitle') || 'Help shape the next generation of Ethiopian tech talent'}</p>
+      {/* Become a Mentor CTA - Warm and Inviting */}
+      <div className="bg-gradient-to-br from-accent-50 via-accent-50 to-primary-50 rounded-3xl p-8 text-center border border-accent-100">
+        <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-soft">
+          <UserPlus className="h-7 w-7 text-accent-500" />
+        </div>
+        <h3 className="font-semibold text-text-primary text-lg">{t('mentors.ctaTitle') || 'Are you an experienced professional?'}</h3>
+        <p className="text-text-secondary mt-2 max-w-md mx-auto">{t('mentors.ctaSubtitle') || 'Help shape the next generation of Ethiopian tech talent by becoming a mentor'}</p>
         <button 
           onClick={() => setShowMentorForm(true)}
-          className="mt-4 inline-flex items-center gap-2 px-6 py-2.5 border-2 border-primary-600 text-primary-600 rounded-lg hover:bg-primary-50 transition-colors font-medium"
+          className="mt-5 inline-flex items-center gap-2 px-6 py-3 bg-accent-300 text-white rounded-full hover:bg-accent-400 transition-all duration-200 font-medium shadow-soft hover:shadow-lg hover:scale-[1.02]"
         >
           <UserPlus className="h-4 w-4" />
           {t('mentors.becomeMentor') || 'Become a Mentor'}
