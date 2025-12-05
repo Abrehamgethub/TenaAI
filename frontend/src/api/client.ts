@@ -97,10 +97,14 @@ export interface ChatMessage {
   timestamp: string;
 }
 
+export type Gender = 'male' | 'female' | 'non-binary' | 'prefer-not-to-say' | '';
+
 export interface UserProfile {
   uid: string;
   name: string;
   email: string;
-  languagePreference: 'en' | 'am' | 'om';
+  languagePreference: 'en' | 'am' | 'om' | 'tg' | 'so';
+  gender?: Gender;
+  dateOfBirth?: string;
   careerGoals?: string[];
 }

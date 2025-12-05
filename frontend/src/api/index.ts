@@ -58,7 +58,7 @@ export const tutorApi = {
    */
   explain: async (
     concept: string,
-    language: 'en' | 'am' | 'om',
+    language: 'en' | 'am' | 'om' | 'tg' | 'so',
     context?: string
   ): Promise<ApiResponse<{ explanation: string; language: string }>> => {
     const response = await apiClient.post('/explain', {
@@ -74,7 +74,7 @@ export const tutorApi = {
    */
   chat: async (
     message: string,
-    language?: 'en' | 'am' | 'om',
+    language?: 'en' | 'am' | 'om' | 'tg' | 'so',
     historyId?: string
   ): Promise<ApiResponse<{ response: string; historyId?: string }>> => {
     const response = await apiClient.post('/explain/chat', {
@@ -201,7 +201,7 @@ export const profileApi = {
    * Save/update user profile
    */
   save: async (
-    profileData: Partial<Pick<UserProfile, 'name' | 'languagePreference' | 'careerGoals'>>
+    profileData: Partial<Pick<UserProfile, 'name' | 'languagePreference' | 'careerGoals' | 'gender' | 'dateOfBirth'>>
   ): Promise<ApiResponse<UserProfile>> => {
     const response = await apiClient.post('/profile/save', profileData);
     return response.data;
@@ -225,7 +225,7 @@ export const profileApi = {
    * Update language preference
    */
   updateLanguage: async (
-    languagePreference: 'en' | 'am' | 'om'
+    languagePreference: 'en' | 'am' | 'om' | 'tg' | 'so'
   ): Promise<ApiResponse<void>> => {
     const response = await apiClient.put('/profile/language', {
       languagePreference,

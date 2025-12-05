@@ -1,8 +1,22 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
 import { useLanguage } from '../context/LanguageContext';
 import { roadmapApi } from '../api';
-import { Target, Loader2, ArrowRight, Sparkles } from 'lucide-react';
+import RoadmapStageCard from '../components/RoadmapStageCard';
+import { Target, Loader2, ArrowRight, Sparkles, RefreshCw, CheckCircle, Map, ChevronDown, ChevronUp } from 'lucide-react';
+
+interface RoadmapStage {
+  title: string;
+  description: string;
+  resources: string[];
+  duration?: string;
+  skills?: string[];
+}
+
+interface RoadmapData {
+  careerGoal: string;
+  stages: RoadmapStage[];
+  saved?: { id: string };
+}
 
 const popularCareers = [
   'Software Developer',
@@ -20,9 +34,26 @@ const CareerGoal = () => {
   const [skillLevel, setSkillLevel] = useState('beginner');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [roadmapData, setRoadmapData] = useState<RoadmapData | null>(null);
+  const [completedStages, setCompletedStages] = useState<Set<number>>(new Set());
+  const [isGoalExpanded, setIsGoalExpanded] = useState(true);
 
   const { t, language } = useLanguage();
-  const navigate = useNavigate();
+
+  // Load existing roadmap from session storage
+  useEffect(() => {
+    const storedData = sessionStorage.getItem('currentRoadmap');
+    if (storedData) {
+      try {
+        const data = JSON.parse(storedData);
+        setRoadmapData(data);
+        setCareerGoal(data.careerGoal || '');
+        setIsGoalExpanded(false);
+      } catch (e) {
+        console.error('Failed to parse roadmap data');
+      }
+    }
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -39,13 +70,16 @@ const CareerGoal = () => {
       const response = await roadmapApi.generate(careerGoal, skillLevel, language);
       
       if (response.success && response.data) {
-        // Store roadmap data and navigate
-        sessionStorage.setItem('currentRoadmap', JSON.stringify({
+        const newRoadmapData = {
           careerGoal,
           stages: response.data.roadmap,
           saved: response.data.saved,
-        }));
-        navigate('/roadmap');
+        };
+        // Store roadmap data
+        sessionStorage.setItem('currentRoadmap', JSON.stringify(newRoadmapData));
+        setRoadmapData(newRoadmapData);
+        setCompletedStages(new Set());
+        setIsGoalExpanded(false);
       } else {
         setError(response.error || 'Failed to generate roadmap');
       }
@@ -60,135 +94,237 @@ const CareerGoal = () => {
     setCareerGoal(career);
   };
 
+  const toggleStageComplete = (stageIndex: number) => {
+    setCompletedStages((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(stageIndex)) {
+        newSet.delete(stageIndex);
+      } else {
+        newSet.add(stageIndex);
+      }
+      return newSet;
+    });
+  };
+
+  const progress = roadmapData?.stages?.length 
+    ? (completedStages.size / roadmapData.stages.length) * 100 
+    : 0;
+
   return (
-    <div className="animate-fade-in">
-      {/* Header */}
-      <div className="mb-8">
-        <div className="inline-flex items-center gap-2 rounded-full bg-primary-100 px-3 py-1 text-sm font-medium text-primary-700 mb-4">
-          <Target className="h-4 w-4" />
-          Step 1
+    <div className="animate-fade-in space-y-6">
+      {/* Career Goal Card - Sticky Header with Glassmorphism */}
+      <div className={`sticky top-0 z-10 transition-all duration-300 ${!isGoalExpanded ? 'py-2' : ''}`}>
+        <div className="rounded-2xl bg-white/80 backdrop-blur-lg shadow-lg border border-gray-100 overflow-hidden">
+          {/* Header */}
+          <div 
+            className="flex items-center justify-between p-4 cursor-pointer hover:bg-gray-50/50 transition-colors"
+            onClick={() => setIsGoalExpanded(!isGoalExpanded)}
+          >
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-primary-500 to-primary-600 text-white">
+                <Target className="h-5 w-5" />
+              </div>
+              <div>
+                <h2 className="font-semibold text-gray-900">
+                  {roadmapData ? 'Your Career Goal' : 'Set Your Career Goal'}
+                </h2>
+                {roadmapData && !isGoalExpanded && (
+                  <p className="text-sm text-primary-600 font-medium">{roadmapData.careerGoal}</p>
+                )}
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              {roadmapData?.saved && (
+                <span className="flex items-center gap-1 text-xs font-medium text-green-600 bg-green-50 px-2 py-1 rounded-full">
+                  <CheckCircle className="h-3 w-3" />
+                  Saved
+                </span>
+              )}
+              {isGoalExpanded ? (
+                <ChevronUp className="h-5 w-5 text-gray-400" />
+              ) : (
+                <ChevronDown className="h-5 w-5 text-gray-400" />
+              )}
+            </div>
+          </div>
+
+          {/* Expandable Form */}
+          <div className={`transition-all duration-300 ease-in-out overflow-hidden ${
+            isGoalExpanded ? 'max-h-[800px] opacity-100' : 'max-h-0 opacity-0'
+          }`}>
+            <form onSubmit={handleSubmit} className="p-4 pt-0 space-y-4">
+              {/* Career Input */}
+              <div>
+                <div className="relative">
+                  <Sparkles className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
+                  <input
+                    type="text"
+                    value={careerGoal}
+                    onChange={(e) => setCareerGoal(e.target.value)}
+                    placeholder={t('career.placeholder')}
+                    className="w-full rounded-xl border border-gray-200 py-3 pl-12 pr-4 text-gray-900 placeholder-gray-400 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-100"
+                  />
+                </div>
+              </div>
+
+              {/* Popular Careers */}
+              <div>
+                <label className="block text-xs font-medium text-gray-500 mb-2 uppercase tracking-wide">
+                  Popular choices
+                </label>
+                <div className="flex flex-wrap gap-2">
+                  {popularCareers.map((career) => (
+                    <button
+                      key={career}
+                      type="button"
+                      onClick={() => selectCareer(career)}
+                      className={`rounded-full px-3 py-1.5 text-xs font-medium transition-all ${
+                        careerGoal === career
+                          ? 'bg-primary-600 text-white shadow-md'
+                          : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                      }`}
+                    >
+                      {career}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Skill Level */}
+              <div>
+                <label className="block text-xs font-medium text-gray-500 mb-2 uppercase tracking-wide">
+                  Skill level
+                </label>
+                <div className="grid grid-cols-3 gap-2">
+                  {['beginner', 'intermediate', 'advanced'].map((level) => (
+                    <button
+                      key={level}
+                      type="button"
+                      onClick={() => setSkillLevel(level)}
+                      className={`rounded-lg border py-2 text-sm font-medium capitalize transition-all ${
+                        skillLevel === level
+                          ? 'border-primary-500 bg-primary-50 text-primary-700'
+                          : 'border-gray-200 text-gray-600 hover:border-gray-300'
+                      }`}
+                    >
+                      {level}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Error */}
+              {error && (
+                <div className="rounded-lg bg-red-50 p-3 text-sm text-red-700">
+                  {error}
+                </div>
+              )}
+
+              {/* Submit */}
+              <button
+                type="submit"
+                disabled={loading || !careerGoal.trim()}
+                className="w-full flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-primary-600 to-primary-700 py-3 font-medium text-white hover:from-primary-700 hover:to-primary-800 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-md"
+              >
+                {loading ? (
+                  <>
+                    <Loader2 className="h-5 w-5 animate-spin" />
+                    {t('career.loading')}
+                  </>
+                ) : roadmapData ? (
+                  <>
+                    <RefreshCw className="h-5 w-5" />
+                    Regenerate Roadmap
+                  </>
+                ) : (
+                  <>
+                    {t('career.submit')}
+                    <ArrowRight className="h-5 w-5" />
+                  </>
+                )}
+              </button>
+            </form>
+          </div>
         </div>
-        <h1 className="text-3xl font-bold text-gray-900">{t('career.title')}</h1>
-        <p className="mt-2 text-gray-600">
-          Tell us your dream career and we'll create a personalized learning roadmap for you.
-        </p>
       </div>
 
-      {/* Form */}
-      <form onSubmit={handleSubmit} className="space-y-6">
-        {/* Career Input */}
-        <div>
-          <label htmlFor="careerGoal" className="block text-sm font-medium text-gray-700 mb-2">
-            Career Goal
-          </label>
-          <div className="relative">
-            <Sparkles className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
-            <input
-              id="careerGoal"
-              type="text"
-              value={careerGoal}
-              onChange={(e) => setCareerGoal(e.target.value)}
-              placeholder={t('career.placeholder')}
-              className="w-full rounded-xl border border-gray-200 py-4 pl-12 pr-4 text-lg text-gray-900 placeholder-gray-400 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-100"
-            />
+      {/* Roadmap Section */}
+      {roadmapData?.stages?.length ? (
+        <div className="space-y-4 animate-fade-in">
+          {/* Progress Bar */}
+          <div className="rounded-2xl bg-white/80 backdrop-blur-lg shadow-md border border-gray-100 p-4">
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2">
+                <Map className="h-5 w-5 text-primary-600" />
+                <span className="font-semibold text-gray-900">Your Learning Roadmap</span>
+              </div>
+              <span className="text-sm font-medium text-primary-600">
+                {completedStages.size} / {roadmapData.stages.length} completed
+              </span>
+            </div>
+            <div className="h-2 rounded-full bg-gray-100 overflow-hidden">
+              <div
+                className="h-full rounded-full bg-gradient-to-r from-primary-500 to-primary-600 transition-all duration-500 ease-out"
+                style={{ width: `${progress}%` }}
+              />
+            </div>
           </div>
-        </div>
 
-        {/* Popular Careers */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-3">
-            Popular careers
-          </label>
-          <div className="flex flex-wrap gap-2">
-            {popularCareers.map((career) => (
-              <button
-                key={career}
-                type="button"
-                onClick={() => selectCareer(career)}
-                className={`rounded-full px-4 py-2 text-sm font-medium transition-colors ${
-                  careerGoal === career
-                    ? 'bg-primary-600 text-white'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                }`}
+          {/* Stages */}
+          <div className="space-y-3">
+            {roadmapData.stages.map((stage, index) => (
+              <div 
+                key={index}
+                className="animate-slide-in"
+                style={{ animationDelay: `${index * 100}ms` }}
               >
-                {career}
-              </button>
+                <RoadmapStageCard
+                  stageNumber={index + 1}
+                  title={stage.title}
+                  description={stage.description}
+                  resources={stage.resources}
+                  duration={stage.duration}
+                  skills={stage.skills}
+                  isCompleted={completedStages.has(index)}
+                  onToggleComplete={() => toggleStageComplete(index)}
+                />
+              </div>
             ))}
           </div>
-        </div>
 
-        {/* Skill Level */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-3">
-            Current skill level
-          </label>
-          <div className="grid grid-cols-3 gap-3">
-            {['beginner', 'intermediate', 'advanced'].map((level) => (
-              <button
-                key={level}
-                type="button"
-                onClick={() => setSkillLevel(level)}
-                className={`rounded-xl border-2 py-3 text-sm font-medium capitalize transition-colors ${
-                  skillLevel === level
-                    ? 'border-primary-600 bg-primary-50 text-primary-700'
-                    : 'border-gray-200 text-gray-600 hover:border-gray-300'
-                }`}
-              >
-                {level}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Error */}
-        {error && (
-          <div className="rounded-lg bg-red-50 p-4 text-sm text-red-700">
-            {error}
-          </div>
-        )}
-
-        {/* Submit */}
-        <button
-          type="submit"
-          disabled={loading || !careerGoal.trim()}
-          className="w-full flex items-center justify-center gap-2 rounded-xl bg-primary-600 py-4 text-lg font-medium text-white hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-        >
-          {loading ? (
-            <>
-              <Loader2 className="h-5 w-5 animate-spin" />
-              {t('career.loading')}
-            </>
-          ) : (
-            <>
-              {t('career.submit')}
-              <ArrowRight className="h-5 w-5" />
-            </>
+          {/* Completion Message */}
+          {progress === 100 && (
+            <div className="rounded-2xl bg-gradient-to-r from-green-500 to-emerald-600 p-6 text-white text-center animate-fade-in">
+              <CheckCircle className="h-12 w-12 mx-auto mb-3" />
+              <h3 className="text-xl font-bold mb-2">🎉 Congratulations!</h3>
+              <p className="opacity-90">You've completed all stages of your roadmap!</p>
+            </div>
           )}
-        </button>
-      </form>
-
-      {/* Info */}
-      <div className="mt-8 rounded-xl bg-primary-50 p-6">
-        <h3 className="font-semibold text-primary-900 mb-2">What happens next?</h3>
-        <ul className="space-y-2 text-sm text-primary-800">
-          <li className="flex items-start gap-2">
-            <span className="mt-1 h-1.5 w-1.5 rounded-full bg-primary-400 shrink-0" />
-            AI analyzes your career goal and skill level
-          </li>
-          <li className="flex items-start gap-2">
-            <span className="mt-1 h-1.5 w-1.5 rounded-full bg-primary-400 shrink-0" />
-            Creates a 5-stage personalized learning roadmap
-          </li>
-          <li className="flex items-start gap-2">
-            <span className="mt-1 h-1.5 w-1.5 rounded-full bg-primary-400 shrink-0" />
-            Recommends free resources for each stage
-          </li>
-          <li className="flex items-start gap-2">
-            <span className="mt-1 h-1.5 w-1.5 rounded-full bg-primary-400 shrink-0" />
-            Saves your roadmap for future reference
-          </li>
-        </ul>
-      </div>
+        </div>
+      ) : !loading && (
+        /* Info Card - Show only when no roadmap */
+        <div className="rounded-2xl bg-gradient-to-br from-primary-50 to-primary-100 p-6 border border-primary-200">
+          <h3 className="font-semibold text-primary-900 mb-3">What happens next?</h3>
+          <ul className="space-y-2 text-sm text-primary-800">
+            <li className="flex items-start gap-2">
+              <span className="mt-1.5 h-1.5 w-1.5 rounded-full bg-primary-500 shrink-0" />
+              AI analyzes your career goal and skill level
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="mt-1.5 h-1.5 w-1.5 rounded-full bg-primary-500 shrink-0" />
+              Creates a 5-stage personalized learning roadmap
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="mt-1.5 h-1.5 w-1.5 rounded-full bg-primary-500 shrink-0" />
+              Recommends free resources for each stage
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="mt-1.5 h-1.5 w-1.5 rounded-full bg-primary-500 shrink-0" />
+              Saves your roadmap for future reference
+            </li>
+          </ul>
+        </div>
+      )}
     </div>
   );
 };

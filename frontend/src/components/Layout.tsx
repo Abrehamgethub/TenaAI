@@ -1,6 +1,7 @@
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
+import { useIdleLogout } from '../hooks/useIdleLogout';
 import {
   Target,
   Map,
@@ -24,6 +25,12 @@ const Layout = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  // Auto-logout after 15 minutes of inactivity
+  useIdleLogout({
+    idleTime: 15 * 60 * 1000, // 15 minutes
+    enabled: !!user, // Only enable when user is logged in
+  });
 
   const navItems = [
     { path: '/career-goal', icon: Target, label: t('nav.career') },

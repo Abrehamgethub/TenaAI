@@ -1,6 +1,14 @@
 import { createContext, useContext, useState, ReactNode } from 'react';
 
-export type Language = 'en' | 'am' | 'om';
+export type Language = 'en' | 'am' | 'om' | 'tg' | 'so';
+
+export const languageNames: Record<Language, string> = {
+  en: 'English',
+  am: 'አማርኛ (Amharic)',
+  om: 'Oromiffa',
+  tg: 'ትግርኛ (Tigrigna)',
+  so: 'Soomaali (Somali)',
+};
 
 interface LanguageContextType {
   language: Language;
@@ -176,6 +184,118 @@ const translations: Record<Language, Record<string, string>> = {
     'common.save': 'Olkaa\'i',
     'common.cancel': 'Dhiisi',
     'common.delete': 'Haqi',
+  },
+  tg: {
+    // Navigation - Tigrigna
+    'nav.home': 'መበገሲ',
+    'nav.career': 'ዕላማ ስራሕ',
+    'nav.roadmap': 'መገደይ',
+    'nav.tutor': 'AI መምህር',
+    'nav.opportunities': 'ዕድላት',
+    'nav.profile': 'መግለጺ',
+    'nav.logout': 'ውጻእ',
+
+    // Landing
+    'landing.title': 'ብAI ዝድገፍ መሻርኽቲ ትምህርቲ',
+    'landing.subtitle': 'ንመንእሰያት ኢትዮጵያ ውልቃዊ መገድታት ትምህርቲን መምርሒ ስራሕን',
+    'landing.cta': 'ጀምር',
+    'landing.login': 'እቶ',
+
+    // Career Goal
+    'career.title': 'ኣየናይ ሞያ ክትስዕብ ትደሊ?',
+    'career.placeholder': 'ንኣብነት: Software Developer, Data Scientist',
+    'career.submit': 'መገደይ ኣዳሉ',
+    'career.loading': 'ውልቃዊ መገድኻ እናዳለኹ ኣለኹ...',
+
+    // Roadmap
+    'roadmap.title': 'መገዲ ትምህርትኻ',
+    'roadmap.empty': 'መገድኻ ንምርኣይ ዕላማ ስራሕ ኣእቱ',
+    'roadmap.stage': 'ደረጃ',
+    'roadmap.resources': 'ጸጋታት',
+    'roadmap.save': 'መገዲ ዓቅብ',
+
+    // Tutor
+    'tutor.title': 'AI መምህር',
+    'tutor.placeholder': 'ብዛዕባ ትምህርትኻ ዝኾነ ሕቶ ሕተት...',
+    'tutor.send': 'ስደድ',
+    'tutor.speak': 'ተዛረብ',
+    'tutor.listening': 'እሰምዕ ኣለኹ...',
+
+    // Opportunities
+    'opportunities.title': 'ንዓኻ ዕድላት',
+    'opportunities.generate': 'ዕድላት ድለ',
+    'opportunities.save': 'ዓቅብ',
+    'opportunities.saved': 'ተዓቂቡ',
+
+    // Profile
+    'profile.title': 'መግለጺኻ',
+    'profile.savedRoadmaps': 'ዝተዓቀቡ መገድታት',
+    'profile.savedOpportunities': 'ዝተዓቀቡ ዕድላት',
+    'profile.language': 'ምርጫ ቋንቋ',
+
+    // Common
+    'common.loading': 'ይጽዓን ኣሎ...',
+    'common.error': 'ጸገም ኣጋጢሙ',
+    'common.retry': 'ደጊምካ ፈትን',
+    'common.save': 'ዓቅብ',
+    'common.cancel': 'ሰርዝ',
+    'common.delete': 'ደምስስ',
+  },
+  so: {
+    // Navigation - Somali
+    'nav.home': 'Guriga',
+    'nav.career': 'Hadafka Shaqada',
+    'nav.roadmap': 'Dariiqdayda',
+    'nav.tutor': 'Macalinka AI',
+    'nav.opportunities': 'Fursadaha',
+    'nav.profile': 'Astaanta',
+    'nav.logout': 'Ka bax',
+
+    // Landing
+    'landing.title': 'Saaxiibkaaga Waxbarashada AI',
+    'landing.subtitle': 'Waddooyinka waxbarashada shakhsiga ah iyo hagista shaqada ee dhallinyarada Itoobiya',
+    'landing.cta': 'Bilow',
+    'landing.login': 'Gal',
+
+    // Career Goal
+    'career.title': 'Shaqo noocee ah ayaad rabtaa inaad raacdo?',
+    'career.placeholder': 'Tusaale: Software Developer, Data Scientist',
+    'career.submit': 'Samee Dariiqdayda',
+    'career.loading': 'Waan samaynayaa dariiqdaada gaarka ah...',
+
+    // Roadmap
+    'roadmap.title': 'Dariiqdaada Waxbarashada',
+    'roadmap.empty': 'Geli hadafka shaqada si aad u aragto dariiqdaada',
+    'roadmap.stage': 'Heer',
+    'roadmap.resources': 'Ilaha',
+    'roadmap.save': 'Kaydi Dariiqa',
+
+    // Tutor
+    'tutor.title': 'Macalinka AI',
+    'tutor.placeholder': 'Wax kasta ii weydii waxbarashada...',
+    'tutor.send': 'Dir',
+    'tutor.speak': 'Hadal',
+    'tutor.listening': 'Waan dhegaysanayaa...',
+
+    // Opportunities
+    'opportunities.title': 'Fursadaha Adiga',
+    'opportunities.generate': 'Raadi Fursadaha',
+    'opportunities.save': 'Kaydi',
+    'opportunities.saved': 'Waa la keydiyay',
+
+    // Profile
+    'profile.title': 'Astaantaada',
+    'profile.savedRoadmaps': 'Waddooyinka La Keydiyay',
+    'profile.savedOpportunities': 'Fursadaha La Keydiyay',
+    'profile.language': 'Doorashada Luqadda',
+
+    // Common
+    'common.loading': 'Waa la rarrayaa...',
+    'common.error': 'Wax qalad ah ayaa dhacay',
+    'common.retry': 'Isku day mar kale',
+    'common.save': 'Kaydi',
+    'common.cancel': 'Jooji',
+    'common.delete': 'Tirtir',
   },
 };
 

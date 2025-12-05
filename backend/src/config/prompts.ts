@@ -1,10 +1,30 @@
-// Gemini Prompt Templates for TenaAI
+// Gemini Prompt Templates for QineGuide
+
+export interface UserContext {
+  gender?: string;
+  age?: number;
+  language?: string;
+}
+
+const getPersonalizationText = (context?: UserContext) => {
+  if (!context) return '';
+  const parts = [];
+  if (context.age) parts.push(`The learner is ${context.age} years old.`);
+  if (context.gender && context.gender !== 'prefer-not-to-say') {
+    parts.push(`Gender: ${context.gender}.`);
+  }
+  if (parts.length > 0) {
+    parts.push('Adjust your tone, examples, and complexity to be appropriate for their age group.');
+  }
+  return parts.join(' ');
+};
 
 export const PROMPTS = {
   // Career Roadmap Generation
-  roadmap: (careerGoal: string, skillLevel?: string) => `
-You are TenaAI, an AI mentor for Ethiopian youth. Create a clear, step-by-step learning pathway for becoming a ${careerGoal}.
+  roadmap: (careerGoal: string, skillLevel?: string, userContext?: UserContext) => `
+You are QineGuide, an AI mentor for Ethiopian youth. Create a clear, step-by-step learning pathway for becoming a ${careerGoal}.
 ${skillLevel ? `The learner's current skill level is: ${skillLevel}` : 'Assume the learner is a complete beginner.'}
+${getPersonalizationText(userContext)}
 
 Include exactly 5 stages:
 1. Beginner - Introduction and fundamentals
@@ -39,24 +59,29 @@ Respond in valid JSON format:
 }
 `,
 
-  // Concept Explanation (Multilingual)
-  explain: (concept: string, language: 'am' | 'om' | 'en', context?: string) => {
-    const languageMap = {
+  // Concept Explanation (Multilingual - 5 Ethiopian languages)
+  explain: (concept: string, language: 'am' | 'om' | 'en' | 'tg' | 'so', context?: string, userContext?: UserContext) => {
+    const languageMap: Record<string, string> = {
       am: 'Amharic (አማርኛ)',
       om: 'Afan Oromo (Oromiffa)',
       en: 'English',
+      tg: 'Tigrigna (ትግርኛ)',
+      so: 'Somali (Soomaali)',
     };
 
-    const languageInstructions = {
+    const languageInstructions: Record<string, string> = {
       am: 'Use Amharic script (ፊደል) for your response. Make sure the explanation is culturally relevant to Ethiopian students.',
       om: 'Use Latin script for Afan Oromo. Make the explanation relatable to Oromo-speaking students in Ethiopia.',
       en: 'Use simple, clear English suitable for non-native speakers.',
+      tg: 'Use Tigrigna script (ፊደል) for your response. Make sure the explanation is culturally relevant to Tigrigna-speaking Ethiopian students.',
+      so: 'Use Latin script for Somali. Make the explanation relatable to Somali-speaking students in Ethiopia.',
     };
 
     return `
-You are TenaAI, a friendly AI tutor helping Ethiopian youth learn STEM concepts.
-Explain the following concept in ${languageMap[language]}.
-${languageInstructions[language]}
+You are QineGuide, a friendly AI tutor helping Ethiopian youth learn STEM concepts.
+Explain the following concept in ${languageMap[language] || 'English'}.
+${languageInstructions[language] || languageInstructions.en}
+${getPersonalizationText(userContext)}
 
 Concept: ${concept}
 ${context ? `Additional context: ${context}` : ''}
@@ -81,8 +106,9 @@ Keep the tone friendly, encouraging, and patient. Remember you're speaking to yo
   },
 
   // Opportunities Recommendation - Uses ONLY verified, real URLs
-  opportunities: (careerGoal: string, skillLevel?: string, category?: string) => `
-You are TenaAI, helping Ethiopian youth find learning and career opportunities.
+  opportunities: (careerGoal: string, skillLevel?: string, category?: string, userContext?: UserContext) => `
+You are QineGuide, helping Ethiopian youth find learning and career opportunities.
+${getPersonalizationText(userContext)}
 Generate a list of 5-8 relevant opportunities for someone learning ${careerGoal}.
 ${skillLevel ? `Skill level: ${skillLevel}` : ''}
 ${category ? `Focus on: ${category}` : 'Include a mix of courses, scholarships, and programs.'}
@@ -168,8 +194,9 @@ Respond in valid JSON format:
 `,
 
   // Skills Evaluation
-  skillsEval: (careerGoal: string, currentSkills: string[], experience?: string) => `
-You are TenaAI, a career advisor for Ethiopian youth.
+  skillsEval: (careerGoal: string, currentSkills: string[], experience?: string, userContext?: UserContext) => `
+You are QineGuide, a career advisor for Ethiopian youth.
+${getPersonalizationText(userContext)}
 Evaluate the skills of someone aspiring to become a ${careerGoal}.
 
 Current skills: ${currentSkills.join(', ')}

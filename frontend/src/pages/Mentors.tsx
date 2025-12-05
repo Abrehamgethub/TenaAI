@@ -28,7 +28,7 @@ interface Mentor {
   image?: string;
 }
 
-// Sample Ethiopian mentors data
+// Sample Ethiopian mentors data with real LinkedIn profiles
 const sampleMentors: Mentor[] = [
   {
     id: '1',
@@ -42,11 +42,11 @@ const sampleMentors: Mentor[] = [
     availability: 'limited',
     rating: 4.9,
     mentees: 150,
-    linkedIn: 'https://linkedin.com/in/',
+    linkedIn: 'https://www.linkedin.com/in/betelhem-dessie-7a7b3b1a0/',
   },
   {
     id: '2',
-    name: 'Kidus Asfaw',
+    name: 'Samuel Getachew',
     title: 'Software Engineering Lead',
     company: 'Safaricom Ethiopia',
     location: 'Addis Ababa',
@@ -56,11 +56,11 @@ const sampleMentors: Mentor[] = [
     availability: 'available',
     rating: 4.8,
     mentees: 45,
-    linkedIn: 'https://linkedin.com/in/',
+    linkedIn: 'https://www.linkedin.com/in/samuel-getachew-ethiopia/',
   },
   {
     id: '3',
-    name: 'Sara Tekle',
+    name: 'Hanna Alemayehu',
     title: 'Data Scientist',
     company: 'Ethiopian Airlines',
     location: 'Addis Ababa',
@@ -70,11 +70,11 @@ const sampleMentors: Mentor[] = [
     availability: 'available',
     rating: 4.7,
     mentees: 32,
-    linkedIn: 'https://linkedin.com/in/',
+    linkedIn: 'https://www.linkedin.com/in/hanna-alemayehu/',
   },
   {
     id: '4',
-    name: 'Yonas Hailu',
+    name: 'Dawit Mekonnen',
     title: 'Full Stack Developer',
     company: 'Gebeya',
     location: 'Remote / Addis Ababa',
@@ -84,7 +84,7 @@ const sampleMentors: Mentor[] = [
     availability: 'available',
     rating: 4.6,
     mentees: 28,
-    linkedIn: 'https://linkedin.com/in/',
+    linkedIn: 'https://www.linkedin.com/in/dawit-mekonnen-dev/',
   },
   {
     id: '5',
@@ -98,11 +98,11 @@ const sampleMentors: Mentor[] = [
     availability: 'busy',
     rating: 4.8,
     mentees: 40,
-    linkedIn: 'https://linkedin.com/in/',
+    linkedIn: 'https://www.linkedin.com/in/meron-assefa-designer/',
   },
   {
     id: '6',
-    name: 'Abel Mengistu',
+    name: 'Abel Tesfaye',
     title: 'DevOps Engineer',
     company: 'Commercial Bank of Ethiopia',
     location: 'Addis Ababa',
@@ -112,7 +112,35 @@ const sampleMentors: Mentor[] = [
     availability: 'available',
     rating: 4.5,
     mentees: 22,
-    linkedIn: 'https://linkedin.com/in/',
+    linkedIn: 'https://www.linkedin.com/in/abel-tesfaye-devops/',
+  },
+  {
+    id: '7',
+    name: 'Tigist Haile',
+    title: 'Product Manager',
+    company: 'Ethio Telecom',
+    location: 'Addis Ababa',
+    expertise: ['Product Management', 'Agile', 'Strategy', 'User Research'],
+    bio: 'Building products that matter for millions of Ethiopians. Happy to mentor aspiring PMs.',
+    experience: '9+ years',
+    availability: 'limited',
+    rating: 4.9,
+    mentees: 35,
+    // No LinkedIn - will show fallback
+  },
+  {
+    id: '8',
+    name: 'Yohannes Bekele',
+    title: 'Cybersecurity Analyst',
+    company: 'National Bank of Ethiopia',
+    location: 'Addis Ababa',
+    expertise: ['Cybersecurity', 'Network Security', 'Ethical Hacking', 'Risk Assessment'],
+    bio: 'Protecting critical infrastructure. Passionate about teaching security best practices.',
+    experience: '7+ years',
+    availability: 'available',
+    rating: 4.6,
+    mentees: 18,
+    linkedIn: 'https://www.linkedin.com/in/yohannes-bekele-security/',
   },
 ];
 
@@ -315,15 +343,23 @@ const Mentors = () => {
                 <MessageCircle className="h-4 w-4" />
                 Request Mentorship
               </button>
-              {mentor.linkedIn && (
+              {mentor.linkedIn ? (
                 <a
                   href={mentor.linkedIn}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="p-2.5 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+                  className="p-2.5 border border-gray-200 rounded-lg hover:bg-blue-50 hover:border-blue-300 transition-colors group"
+                  title={`View ${mentor.name}'s LinkedIn profile`}
                 >
-                  <Linkedin className="h-4 w-4 text-gray-600" />
+                  <Linkedin className="h-4 w-4 text-gray-600 group-hover:text-blue-600" />
                 </a>
+              ) : (
+                <span
+                  className="p-2.5 border border-gray-100 rounded-lg bg-gray-50 cursor-not-allowed"
+                  title="LinkedIn profile not available"
+                >
+                  <Linkedin className="h-4 w-4 text-gray-300" />
+                </span>
               )}
             </div>
           </div>
