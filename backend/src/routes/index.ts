@@ -8,6 +8,7 @@ import analyticsRoutes from './analytics';
 import quizRoutes from './quiz';
 import dailyPlanRoutes from './dailyPlan';
 import ttsRoutes from './tts';
+import sttRoutes from './stt';
 
 const router = Router();
 
@@ -21,5 +22,6 @@ router.use('/analytics', analyticsRoutes);
 router.use('/quiz', quizRoutes);
 router.use('/daily-plan', dailyPlanRoutes);
 router.use('/tts', ttsRoutes);
+router.use('/stt', sttRoutes);
 
 export default router;

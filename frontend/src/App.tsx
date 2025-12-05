@@ -1,5 +1,5 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import { AuthProvider } from './context/AuthContext';
+import { AuthProvider, useAuth } from './context/AuthContext';
 import { LanguageProvider } from './context/LanguageContext';
 import Layout from './components/Layout';
 import ProtectedRoute from './components/ProtectedRoute';
@@ -8,6 +8,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 import Landing from './pages/Landing';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import Dashboard from './pages/Dashboard';
 import CareerGoal from './pages/CareerGoal';
 import Roadmap from './pages/Roadmap';
 import Tutor from './pages/Tutor';
@@ -20,14 +21,20 @@ import Quiz from './pages/Quiz';
 import Help from './pages/Help';
 import Membership from './pages/Membership';
 
+// Home route component - shows Dashboard if logged in, Landing if not
+const HomeRoute = () => {
+  const { user } = useAuth();
+  return user ? <Dashboard /> : <Landing />;
+};
+
 function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
         <LanguageProvider>
           <Routes>
-            {/* Public routes */}
-            <Route path="/" element={<Landing />} />
+            {/* Home - Dashboard if logged in, Landing if not */}
+            <Route path="/" element={<HomeRoute />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
 

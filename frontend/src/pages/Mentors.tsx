@@ -25,6 +25,8 @@ interface Mentor {
   company: string;
   location: string;
   expertise: string[];
+  primaryExpertise: string; // For filtering
+  scope: 'local' | 'international' | 'both';
   bio: string;
   experience: string;
   availability: 'available' | 'busy' | 'limited';
@@ -48,6 +50,8 @@ const sampleMentors: Mentor[] = [
     company: 'iCog Labs / Anyone Can Code',
     location: 'Addis Ababa',
     expertise: ['Artificial Intelligence', 'Machine Learning', 'Robotics', 'Education'],
+    primaryExpertise: 'AI & Machine Learning',
+    scope: 'international',
     bio: 'Youngest CEO in Ethiopian tech, leading AI research and education initiatives for African youth.',
     experience: '10+ years',
     availability: 'limited',
@@ -62,6 +66,8 @@ const sampleMentors: Mentor[] = [
     company: 'iCog Labs',
     location: 'Addis Ababa',
     expertise: ['AI Research', 'Entrepreneurship', 'Robotics', 'Tech Leadership'],
+    primaryExpertise: 'AI & Machine Learning',
+    scope: 'local',
     bio: 'Building Ethiopia\'s premier AI research lab. Passionate about developing local tech talent.',
     experience: '12+ years',
     availability: 'limited',
@@ -76,6 +82,8 @@ const sampleMentors: Mentor[] = [
     company: 'soleRebels / Garden of Coffee',
     location: 'Addis Ababa',
     expertise: ['Entrepreneurship', 'Social Enterprise', 'Branding', 'Sustainability'],
+    primaryExpertise: 'Entrepreneurship',
+    scope: 'international',
     bio: 'Award-winning entrepreneur building globally recognized Ethiopian brands.',
     experience: '15+ years',
     availability: 'busy',
@@ -90,6 +98,8 @@ const sampleMentors: Mentor[] = [
     company: 'SouthWest Energy',
     location: 'Addis Ababa',
     expertise: ['Business Strategy', 'Energy', 'Investment', 'Leadership'],
+    primaryExpertise: 'Business Strategy',
+    scope: 'local',
     bio: 'Leading Ethiopian business executive with expertise in building large-scale enterprises.',
     experience: '20+ years',
     availability: 'limited',
@@ -108,21 +118,18 @@ interface MentorApplication {
   expertise: string;
 }
 
-const expertiseAreas = [
-  'All',
-  'Software Development',
-  'Data Science',
-  'AI & Machine Learning',
-  'UI/UX Design',
-  'DevOps',
-  'Mobile Apps',
-  'Cloud Computing',
-];
+// Derive expertise areas from mentors' primaryExpertise
+const expertiseAreas = ['All', ...new Set(sampleMentors.map(m => m.primaryExpertise))];
+
+// Scope options
+const scopeOptions = ['All', 'Local', 'International'] as const;
+type ScopeFilter = typeof scopeOptions[number];
 
 const Mentors = () => {
   const [mentors] = useState<Mentor[]>(sampleMentors);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedExpertise, setSelectedExpertise] = useState('All');
+  const [selectedScope, setSelectedScope] = useState<ScopeFilter>('All');
   const [showFilters, setShowFilters] = useState(false);
   const [showMentorForm, setShowMentorForm] = useState(false);
   const [formSubmitting, setFormSubmitting] = useState(false);
@@ -189,9 +196,14 @@ const Mentors = () => {
     
     const matchesExpertise = 
       selectedExpertise === 'All' || 
-      mentor.expertise.some(e => e.toLowerCase().includes(selectedExpertise.toLowerCase()));
+      mentor.primaryExpertise === selectedExpertise;
     
-    return matchesSearch && matchesExpertise;
+    const matchesScope = 
+      selectedScope === 'All' ||
+      mentor.scope === selectedScope.toLowerCase() ||
+      mentor.scope === 'both';
+    
+    return matchesSearch && matchesExpertise && matchesScope;
   });
 
   const getAvailabilityColor = (availability: string) => {
@@ -267,22 +279,45 @@ const Mentors = () => {
         </div>
 
         {showFilters && (
-          <div className="mt-4 pt-4 border-t border-surface-100 animate-fade-in">
-            <p className="text-xs font-medium text-text-muted mb-3 uppercase tracking-wide">{t('mentors.expertiseArea') || 'Expertise Area'}</p>
-            <div className="flex flex-wrap gap-2">
-              {expertiseAreas.map((area) => (
-                <button
-                  key={area}
-                  onClick={() => setSelectedExpertise(area)}
-                  className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 ${
-                    selectedExpertise === area
-                      ? 'bg-primary-500 text-white shadow-button'
-                      : 'bg-surface-100 text-text-secondary hover:bg-surface-200 hover:scale-[1.02]'
-                  }`}
-                >
-                  {area}
-                </button>
-              ))}
+          <div className="mt-4 pt-4 border-t border-surface-100 animate-fade-in space-y-4">
+            {/* Expertise Filter */}
+            <div>
+              <p className="text-xs font-medium text-text-muted mb-3 uppercase tracking-wide">{t('mentors.expertiseArea') || 'Expertise Area'}</p>
+              <div className="flex flex-wrap gap-2">
+                {expertiseAreas.map((area) => (
+                  <button
+                    key={area}
+                    onClick={() => setSelectedExpertise(area)}
+                    className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 ${
+                      selectedExpertise === area
+                        ? 'bg-primary-500 text-white shadow-button'
+                        : 'bg-surface-100 text-text-secondary hover:bg-surface-200 hover:scale-[1.02]'
+                    }`}
+                  >
+                    {area}
+                  </button>
+                ))}
+              </div>
+            </div>
+            
+            {/* Scope Filter */}
+            <div>
+              <p className="text-xs font-medium text-text-muted mb-3 uppercase tracking-wide">{t('mentors.scope') || 'Scope'}</p>
+              <div className="flex gap-2">
+                {scopeOptions.map((scope) => (
+                  <button
+                    key={scope}
+                    onClick={() => setSelectedScope(scope)}
+                    className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 ${
+                      selectedScope === scope
+                        ? 'bg-accent-300 text-white shadow-button'
+                        : 'bg-surface-100 text-text-secondary hover:bg-surface-200'
+                    }`}
+                  >
+                    {scope === 'All' ? (t('mentors.all') || 'All') : scope}
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
         )}
@@ -295,21 +330,21 @@ const Mentors = () => {
         </p>
       </div>
 
-      {/* Mentor Cards - Modern Design */}
-      <div className="grid gap-5 md:grid-cols-2">
+      {/* Mentor Cards - Uniform Height Design */}
+      <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
         {filteredMentors.map((mentor, index) => (
           <div
             key={mentor.id}
-            className="bg-white rounded-2xl p-6 shadow-card border border-surface-200 hover:shadow-soft-lg hover:-translate-y-1 transition-all duration-300 animate-fade-in-up"
+            className="bg-white rounded-2xl p-6 shadow-card border border-surface-200 hover:shadow-soft-lg hover:-translate-y-1 transition-all duration-300 animate-fade-in-up flex flex-col min-h-[320px]"
             style={{ animationDelay: `${index * 100}ms` }}
           >
             {/* Header */}
             <div className="flex items-start gap-4">
-              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center text-white text-xl font-bold shadow-soft flex-shrink-0">
+              <div className="w-14 h-14 rounded-full bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center text-white text-lg font-bold shadow-soft flex-shrink-0">
                 {mentor.name.split(' ').map(n => n[0]).join('')}
               </div>
               <div className="flex-1 min-w-0">
-                <h3 className="font-semibold text-text-primary truncate text-lg">{mentor.name}</h3>
+                <h3 className="font-semibold text-text-primary truncate">{mentor.name}</h3>
                 <p className="text-sm text-text-secondary truncate">{mentor.title}</p>
                 <div className="flex items-center gap-1.5 text-sm text-text-muted mt-1">
                   <Briefcase className="h-3.5 w-3.5" />
@@ -318,56 +353,55 @@ const Mentors = () => {
               </div>
             </div>
 
-            {/* Availability Badge */}
-            <div className="mt-4">
-              <span className={`inline-flex items-center px-3 py-1.5 rounded-full text-xs font-medium ${getAvailabilityColor(mentor.availability)}`}>
+            {/* Badges Row - Availability + Scope */}
+            <div className="mt-3 flex items-center gap-2 flex-wrap">
+              <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${getAvailabilityColor(mentor.availability)}`}>
                 {getAvailabilityText(mentor.availability)}
+              </span>
+              <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${
+                mentor.scope === 'international' 
+                  ? 'bg-blue-100 text-blue-700' 
+                  : mentor.scope === 'local' 
+                  ? 'bg-amber-100 text-amber-700'
+                  : 'bg-purple-100 text-purple-700'
+              }`}>
+                {mentor.scope === 'international' ? '🌍 International' : mentor.scope === 'local' ? '📍 Local' : '🌐 Both'}
               </span>
             </div>
 
-            {/* Bio */}
-            <p className="mt-4 text-sm text-text-secondary leading-relaxed line-clamp-2">{mentor.bio}</p>
+            {/* Bio - flex-1 to push button to bottom */}
+            <p className="mt-3 text-sm text-text-secondary leading-relaxed line-clamp-2 flex-1">{mentor.bio}</p>
 
-            {/* Expertise Tags */}
-            <div className="mt-4 flex flex-wrap gap-2">
-              {mentor.expertise.slice(0, 3).map((skill) => (
-                <span
-                  key={skill}
-                  className="px-3 py-1 bg-surface-100 text-text-secondary rounded-full text-xs font-medium"
-                >
-                  {skill}
-                </span>
-              ))}
-              {mentor.expertise.length > 3 && (
-                <span className="px-3 py-1 bg-surface-100 text-text-muted rounded-full text-xs">
-                  +{mentor.expertise.length - 3}
-                </span>
-              )}
+            {/* Primary Expertise Tag */}
+            <div className="mt-3">
+              <span className="px-3 py-1 bg-primary-50 text-primary-600 rounded-full text-xs font-medium">
+                {mentor.primaryExpertise}
+              </span>
             </div>
 
-            {/* Stats */}
-            <div className="mt-4 flex items-center gap-4 text-sm text-text-muted">
-              <div className="flex items-center gap-1.5">
-                <Star className="h-4 w-4 text-amber-400 fill-amber-400" />
+            {/* Stats Row */}
+            <div className="mt-3 flex items-center gap-3 text-xs text-text-muted">
+              <div className="flex items-center gap-1">
+                <Star className="h-3.5 w-3.5 text-amber-400 fill-amber-400" />
                 <span className="font-medium text-text-secondary">{mentor.rating}</span>
               </div>
-              <div className="flex items-center gap-1.5">
-                <Users className="h-4 w-4" />
-                <span>{mentor.mentees} {t('mentors.mentees') || 'mentees'}</span>
+              <div className="flex items-center gap-1">
+                <Users className="h-3.5 w-3.5" />
+                <span>{mentor.mentees}</span>
               </div>
-              <div className="flex items-center gap-1.5">
-                <MapPin className="h-4 w-4" />
+              <div className="flex items-center gap-1">
+                <MapPin className="h-3.5 w-3.5" />
                 <span>{mentor.location.split(' / ')[0]}</span>
               </div>
             </div>
 
-            {/* LinkedIn Button - Clean Design */}
-            <div className="mt-5">
+            {/* LinkedIn Button - Aligned at bottom */}
+            <div className="mt-4 pt-4 border-t border-surface-100">
               <a
                 href={getLinkedInSearchUrl(mentor.fullName)}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-[#0A66C2] text-white rounded-xl hover:bg-[#004182] transition-all duration-200 font-medium text-sm shadow-soft hover:shadow-lg hover:scale-[1.02]"
+                className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-[#0A66C2] text-white rounded-xl hover:bg-[#004182] transition-all duration-200 font-medium text-sm"
               >
                 <Linkedin className="h-4 w-4" />
                 {t('mentors.viewProfile') || 'View LinkedIn Profile'}

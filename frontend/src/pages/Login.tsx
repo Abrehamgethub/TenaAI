@@ -10,6 +10,10 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [rememberMe, setRememberMe] = useState(() => {
+    const stored = localStorage.getItem('qineguide_remember');
+    return stored !== 'false'; // Default to true
+  });
 
   const { login, loginWithGoogle } = useAuth();
   const { t } = useLanguage();
@@ -23,7 +27,7 @@ const Login = () => {
     setLoading(true);
 
     try {
-      await login(email, password);
+      await login(email, password, rememberMe);
       navigate(from, { replace: true });
     } catch (err: unknown) {
       console.error('Login error:', err);
@@ -53,7 +57,7 @@ const Login = () => {
     setLoading(true);
 
     try {
-      await loginWithGoogle();
+      await loginWithGoogle(rememberMe);
       navigate(from, { replace: true });
     } catch (err: unknown) {
       console.error('Google login error:', err);
@@ -145,6 +149,21 @@ const Login = () => {
                   {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                 </button>
               </div>
+            </div>
+
+            {/* Remember Me */}
+            <div className="flex items-center justify-between">
+              <label className="flex items-center gap-2 cursor-pointer group">
+                <input
+                  type="checkbox"
+                  checked={rememberMe}
+                  onChange={(e) => setRememberMe(e.target.checked)}
+                  className="w-4 h-4 rounded border-gray-300 text-primary-600 focus:ring-primary-500 cursor-pointer"
+                />
+                <span className="text-sm text-gray-600 group-hover:text-gray-900">
+                  {t('auth.rememberMe') || 'Remember me'}
+                </span>
+              </label>
             </div>
 
             {/* Submit */}

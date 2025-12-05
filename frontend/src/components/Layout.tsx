@@ -15,7 +15,7 @@ import {
   Compass,
 } from 'lucide-react';
 import { useState } from 'react';
-import LanguageSelector from './LanguageSelector';
+import LanguagePillSelector from './LanguagePillSelector';
 
 const Layout = () => {
   const { user, logout } = useAuth();
@@ -53,8 +53,12 @@ const Layout = () => {
       {/* Desktop Sidebar - Modern, Clean Design */}
       <aside className="fixed left-0 top-0 z-40 hidden h-screen w-72 bg-white/80 backdrop-blur-xl border-r border-surface-200 md:block">
         <div className="flex h-full flex-col">
-          {/* Logo - Friendly and Warm */}
-          <div className="flex h-20 items-center gap-3 px-6">
+          {/* Logo - Clickable, navigates to Home */}
+          <Link 
+            to="/" 
+            className="flex h-20 items-center gap-3 px-6 hover:bg-surface-50 transition-colors"
+            aria-label="QineGuide Home"
+          >
             <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-primary-500 to-primary-600 text-white font-bold text-lg shadow-button">
               Q
             </div>
@@ -62,7 +66,7 @@ const Layout = () => {
               <span className="text-xl font-bold text-text-primary">QineGuide</span>
               <p className="text-xs text-text-muted">{t('nav.tagline') || 'Your learning companion'}</p>
             </div>
-          </div>
+          </Link>
 
           {/* Navigation - Clean Icons with Friendly Labels */}
           <nav className="flex-1 px-4 py-6 space-y-1">
@@ -87,8 +91,8 @@ const Layout = () => {
 
           {/* User Section - Warm and Personal */}
           <div className="p-4 space-y-4">
-            {/* Language Selector */}
-            <LanguageSelector />
+            {/* Language Selector - New Pill Design */}
+            <LanguagePillSelector variant="sidebar" />
             
             {/* User Profile Card */}
             <div className="bg-gradient-to-br from-surface-50 to-surface-100 rounded-2xl p-4">
@@ -170,7 +174,7 @@ const Layout = () => {
             </nav>
             
             <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-surface-200 bg-white">
-              <LanguageSelector />
+              <LanguagePillSelector variant="mobile" />
               <button
                 onClick={() => {
                   handleLogout();

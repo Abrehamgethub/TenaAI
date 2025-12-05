@@ -330,6 +330,30 @@ const translations: Record<Language, Record<string, string>> = {
     'roadmap.startStep': 'Start This Step',
     'roadmap.completed': 'Completed!',
     'roadmap.markComplete': 'Mark Done',
+
+    // Dashboard
+    'dashboard.welcome': 'Welcome back',
+    'dashboard.subtitle': 'Ready to continue your learning journey?',
+    'dashboard.streak': 'Learning Streak',
+    'dashboard.progress': 'Progress',
+    'dashboard.tasks': 'Tasks Today',
+    'dashboard.quizzes': 'Quizzes',
+    'dashboard.quickActions': 'Quick Actions',
+    'dashboard.roadmapDesc': 'View your career learning path',
+    'dashboard.coachDesc': 'Your personalized daily tasks',
+    'dashboard.tutorDesc': 'Ask questions and learn',
+    'dashboard.quizDesc': 'Test your knowledge',
+    'dashboard.oppsDesc': 'Find jobs and scholarships',
+    'dashboard.mentorsDesc': 'Connect with professionals',
+    'dashboard.ctaTitle': 'Continue where you left off',
+    'dashboard.ctaDesc': 'Pick up your daily tasks and keep building your skills.',
+    'dashboard.startLearning': 'Start Learning',
+
+    // Auth extended
+    'auth.rememberMe': 'Remember me',
+
+    // Mentors extended
+    'mentors.scope': 'Scope',
   },
   am: {
     // Navigation
@@ -1142,16 +1166,23 @@ interface LanguageProviderProps {
 export const LanguageProvider = ({ children }: LanguageProviderProps) => {
   const [language, setLanguage] = useState<Language>(() => {
     const saved = localStorage.getItem('qineguide-language');
-    return (saved as Language) || 'en';
+    const lang = (saved as Language) || 'en';
+    // Set initial document lang
+    document.documentElement.lang = lang;
+    return lang;
   });
 
   const handleSetLanguage = (lang: Language) => {
     setLanguage(lang);
     localStorage.setItem('qineguide-language', lang);
+    // Update document lang for screen readers
+    document.documentElement.lang = lang;
+    // Dispatch custom event for components that need to react
+    window.dispatchEvent(new CustomEvent('languageChange', { detail: lang }));
   };
 
   const t = (key: string): string => {
-    return translations[language][key] || key;
+    return translations[language][key] || translations['en'][key] || key;
   };
 
   return (
