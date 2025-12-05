@@ -34,26 +34,48 @@ export const roadmapController = {
    */
   async generate(req: AuthenticatedRequest, res: Response): Promise<void> {
     try {
-      const { careerGoal, currentSkillLevel, preferredLanguage, age, gender } = req.body as RoadmapRequest & { age?: number; gender?: string };
+      const { 
+        careerGoal, 
+        currentSkillLevel, 
+        preferredLanguage, 
+        language,  // Alternative key
+        user       // User context object
+      } = req.body as RoadmapRequest & { 
+        language?: string;
+        user?: { age?: number; gender?: string };
+      };
       const uid = req.user?.uid;
 
-      // Validate input
+      // Use language or preferredLanguage (fallback to 'en')
+      const effectiveLanguage = (language || preferredLanguage || 'en') as 'en' | 'am' | 'om' | 'tg' | 'so';
+      
+      // Extract user demographics
+      const userAge = user?.age;
+      const userGender = user?.gender;
+
+      // Validate input (backup check - middleware should catch this)
       if (!careerGoal || careerGoal.trim().length < 3) {
         res.status(400).json({
           success: false,
-          error: 'Career goal is required and must be at least 3 characters',
+          error: 'careerGoal_missing_or_invalid',
+          message: 'A clear careerGoal string (min 3 chars) is required.',
           code: 'INVALID_INPUT',
         });
         return;
       }
 
-      logger.info(`Generating roadmap for career: ${careerGoal}`, { uid, age, gender, language: preferredLanguage });
+      logger.info(`Generating roadmap for career: ${careerGoal}`, { 
+        uid, 
+        age: userAge, 
+        gender: userGender, 
+        language: effectiveLanguage 
+      });
 
       // Generate roadmap using Gemini with retry, timeout, and demographic options
       const stages = await geminiService.generateRoadmap(
         careerGoal.trim(), 
         currentSkillLevel || 'beginner',
-        { age, gender, language: preferredLanguage }
+        { age: userAge, gender: userGender, language: effectiveLanguage }
       );
 
       let savedRoadmap: Roadmap | null = null;

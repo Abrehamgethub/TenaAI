@@ -8,21 +8,101 @@ import apiClient, {
 
 // ==================== Roadmap API ====================
 
+// Validation error type
+interface RoadmapValidationError {
+  error: string;
+  message: string;
+  details?: Array<{ field: string; message: string; code: string }>;
+}
+
+// Helper: client-side validation
+const validateRoadmapInput = (careerGoal: string): { valid: boolean; error?: string } => {
+  const trimmed = careerGoal?.trim() || '';
+  if (!trimmed) {
+    return { valid: false, error: 'Please enter a career goal' };
+  }
+  if (trimmed.length < 3) {
+    return { valid: false, error: 'Career goal must be at least 3 characters' };
+  }
+  if (trimmed.length > 200) {
+    return { valid: false, error: 'Career goal must be 200 characters or less' };
+  }
+  return { valid: true };
+};
+
+// Helper: retry logic for transient errors
+const withRetry = async <T>(
+  fn: () => Promise<T>,
+  retries: number = 1,
+  delayMs: number = 1000
+): Promise<T> => {
+  try {
+    return await fn();
+  } catch (error: unknown) {
+    const err = error as { response?: { status?: number }; code?: string };
+    // Only retry on network errors or 5xx server errors
+    const isRetryable = 
+      !err.response || // Network error
+      (err.response.status && err.response.status >= 500) || // Server error
+      err.code === 'ECONNABORTED'; // Timeout
+    
+    if (retries > 0 && isRetryable) {
+      console.log(`Retrying request... (${retries} attempts left)`);
+      await new Promise(resolve => setTimeout(resolve, delayMs));
+      return withRetry(fn, retries - 1, delayMs);
+    }
+    throw error;
+  }
+};
+
 export const roadmapApi = {
   /**
-   * Generate a new career roadmap
+   * Generate a new career roadmap with validation and retry
    */
   generate: async (
     careerGoal: string,
     currentSkillLevel?: string,
-    preferredLanguage?: string
+    preferredLanguage?: string,
+    user?: { age?: number; gender?: string }
   ): Promise<ApiResponse<{ roadmap: RoadmapStage[]; saved?: Roadmap }>> => {
-    const response = await apiClient.post('/roadmap', {
-      careerGoal,
-      currentSkillLevel,
-      preferredLanguage,
-    });
-    return response.data;
+    // Client-side validation
+    const validation = validateRoadmapInput(careerGoal);
+    if (!validation.valid) {
+      return {
+        success: false,
+        error: validation.error,
+      } as ApiResponse<{ roadmap: RoadmapStage[]; saved?: Roadmap }>;
+    }
+
+    try {
+      const response = await withRetry(() => 
+        apiClient.post('/roadmap', {
+          careerGoal: careerGoal.trim(),
+          currentSkillLevel,
+          language: preferredLanguage, // Use 'language' key as primary
+          preferredLanguage, // Also send for backwards compatibility
+          user,
+        })
+      );
+      return response.data;
+    } catch (error: unknown) {
+      const err = error as { response?: { status?: number; data?: RoadmapValidationError }; message?: string };
+      
+      // Handle 400 validation errors
+      if (err.response?.status === 400) {
+        const data = err.response.data;
+        return {
+          success: false,
+          error: data?.message || data?.error || 'Invalid request',
+        } as ApiResponse<{ roadmap: RoadmapStage[]; saved?: Roadmap }>;
+      }
+      
+      // Handle other errors
+      return {
+        success: false,
+        error: err.message || 'Failed to generate roadmap. Please try again.',
+      } as ApiResponse<{ roadmap: RoadmapStage[]; saved?: Roadmap }>;
+    }
   },
 
   /**

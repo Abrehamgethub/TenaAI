@@ -140,19 +140,45 @@ const RoadmapStageCard = ({
                 {t('roadmap.resources') || 'Learning Resources'}
               </h4>
               <div className="space-y-2">
-                {resources.slice(0, 3).map((resource, index) => (
-                  <a
-                    key={index}
-                    href={resource.includes('http') ? resource : `https://www.google.com/search?q=${encodeURIComponent(resource)}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-2 text-sm text-primary-600 hover:text-primary-700 bg-primary-50 hover:bg-primary-100 px-3 py-2 rounded-xl transition-colors"
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    <ExternalLink className="h-3.5 w-3.5 flex-shrink-0" />
-                    <span className="truncate">{resource}</span>
-                  </a>
-                ))}
+                {resources.slice(0, 3).map((resource, index) => {
+                  // Detect and sanitize external URLs
+                  const isExternalUrl = /^https?:\/\//i.test(resource) || 
+                                        resource.startsWith('//') ||
+                                        /^\/https?:\/\//i.test(resource);
+                  
+                  // Clean URL: remove leading slash before http(s)
+                  let cleanUrl = resource;
+                  if (/^\/https?:\/\//i.test(resource)) {
+                    cleanUrl = resource.substring(1);
+                  } else if (resource.startsWith('//')) {
+                    cleanUrl = 'https:' + resource;
+                  }
+                  
+                  // Final URL - external or Google search
+                  const href = isExternalUrl 
+                    ? cleanUrl 
+                    : `https://www.google.com/search?q=${encodeURIComponent(resource)}`;
+                  
+                  // Display text
+                  const displayText = isExternalUrl 
+                    ? (t('roadmap.visitResource') || 'Visit resource')
+                    : resource;
+                  
+                  return (
+                    <a
+                      key={index}
+                      href={href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-2 text-sm text-primary-600 hover:text-primary-700 bg-primary-50 hover:bg-primary-100 px-3 py-2 rounded-xl transition-colors"
+                      onClick={(e) => e.stopPropagation()}
+                      title={isExternalUrl ? cleanUrl : resource}
+                    >
+                      <ExternalLink className="h-3.5 w-3.5 flex-shrink-0" />
+                      <span className="truncate">{isExternalUrl ? displayText : resource}</span>
+                    </a>
+                  );
+                })}
               </div>
             </div>
           )}

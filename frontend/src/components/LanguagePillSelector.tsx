@@ -7,15 +7,15 @@ interface LanguageOption {
   name: string;
   nativeName: string;
   greeting: string;
-  flag: string; // Emoji flag or glyph
+  shortCode: string; // 2-letter display code
 }
 
 const languages: LanguageOption[] = [
-  { code: 'en', name: 'English', nativeName: 'English', greeting: 'Hello!', flag: '🇬🇧' },
-  { code: 'am', name: 'Amharic', nativeName: 'አማርኛ', greeting: 'ሰላም!', flag: '🇪🇹' },
-  { code: 'om', name: 'Afan Oromo', nativeName: 'Oromiffa', greeting: 'Akkam!', flag: '🇪🇹' },
-  { code: 'tg', name: 'Tigrigna', nativeName: 'ትግርኛ', greeting: 'ሰላም!', flag: '🇪🇷' },
-  { code: 'so', name: 'Somali', nativeName: 'Soomaali', greeting: 'Salaan!', flag: '🇸🇴' },
+  { code: 'en', name: 'English', nativeName: 'English', greeting: 'Hello!', shortCode: 'EN' },
+  { code: 'am', name: 'Amharic', nativeName: 'አማርኛ', greeting: 'ሰላም!', shortCode: 'አማ' },
+  { code: 'om', name: 'Afan Oromo', nativeName: 'Afaan Oromoo', greeting: 'Akkam!', shortCode: 'OM' },
+  { code: 'tg', name: 'Tigrigna', nativeName: 'ትግርኛ', greeting: 'ሰላም!', shortCode: 'ትግ' },
+  { code: 'so', name: 'Somali', nativeName: 'Soomaali', greeting: 'Salaan!', shortCode: 'SO' },
 ];
 
 interface LanguagePillSelectorProps {
@@ -127,7 +127,9 @@ const LanguagePillSelector = ({ variant = 'sidebar', onLanguageChange }: Languag
                     : 'hover:bg-surface-50 border-2 border-transparent'
                 }`}
               >
-                <span className="text-3xl">{lang.flag}</span>
+                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary-100 to-primary-200 flex items-center justify-center text-primary-700 font-bold text-sm">
+                  {lang.shortCode}
+                </div>
                 <div className="flex-1 text-left">
                   <p className="font-semibold text-text-primary">{lang.nativeName}</p>
                   <p className="text-sm text-text-muted">{lang.name}</p>
@@ -167,7 +169,9 @@ const LanguagePillSelector = ({ variant = 'sidebar', onLanguageChange }: Languag
             className="group flex items-center gap-3 w-full px-3 py-2.5 rounded-xl bg-gradient-to-r from-surface-50 to-surface-100 hover:from-primary-50 hover:to-primary-100 border border-surface-200 hover:border-primary-200 transition-all duration-200"
             aria-label={`Current language: ${currentLanguage.nativeName}. Click to change.`}
           >
-            <span className="text-xl">{currentLanguage.flag}</span>
+            <div className="w-8 h-8 rounded-full bg-primary-100 flex items-center justify-center text-primary-700 font-bold text-xs">
+              {currentLanguage.shortCode}
+            </div>
             <div className="flex-1 text-left min-w-0">
               <p className="text-sm font-medium text-text-primary truncate">{currentLanguage.nativeName}</p>
               <p className="text-xs text-text-muted">{currentLanguage.greeting}</p>
@@ -201,7 +205,11 @@ const LanguagePillSelector = ({ variant = 'sidebar', onLanguageChange }: Languag
                 role="option"
                 aria-selected={language === lang.code}
               >
-                <span className="text-lg">{lang.flag}</span>
+                <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold ${
+                  language === lang.code ? 'bg-primary-200 text-primary-700' : 'bg-surface-200 text-text-secondary'
+                }`}>
+                  {lang.shortCode}
+                </div>
                 <div className="flex-1 text-left min-w-0">
                   <p className={`text-sm font-medium ${language === lang.code ? 'text-primary-700' : 'text-text-primary'}`}>
                     {lang.nativeName}
@@ -243,7 +251,9 @@ const LanguagePillSelector = ({ variant = 'sidebar', onLanguageChange }: Languag
         className="flex items-center gap-2 px-3 py-2 rounded-xl bg-surface-100 hover:bg-surface-200 transition-all duration-200"
         aria-label={`Language: ${currentLanguage.nativeName}`}
       >
-        <span className="text-lg">{currentLanguage.flag}</span>
+        <div className="w-6 h-6 rounded-full bg-primary-100 flex items-center justify-center text-primary-700 font-bold text-xs">
+          {currentLanguage.shortCode}
+        </div>
         <span className="text-sm font-medium text-text-primary hidden sm:inline">{currentLanguage.nativeName}</span>
         <ChevronDown className={`h-4 w-4 text-text-muted transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
       </button>
@@ -261,7 +271,11 @@ const LanguagePillSelector = ({ variant = 'sidebar', onLanguageChange }: Languag
                     : 'hover:bg-surface-50'
                 }`}
               >
-                <span className="text-lg">{lang.flag}</span>
+                <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold ${
+                  language === lang.code ? 'bg-primary-200 text-primary-700' : 'bg-surface-200 text-text-secondary'
+                }`}>
+                  {lang.shortCode}
+                </div>
                 <div className="flex-1 text-left">
                   <p className="text-sm font-medium">{lang.nativeName}</p>
                   <p className="text-xs text-text-muted">{lang.name}</p>
