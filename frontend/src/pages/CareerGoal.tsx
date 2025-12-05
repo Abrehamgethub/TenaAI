@@ -4,8 +4,9 @@ import { useLanguage } from '../context/LanguageContext';
 import { roadmapApi } from '../api';
 import RoadmapStageCard from '../components/RoadmapStageCard';
 import { 
-  Target, Loader2, ArrowRight, Sparkles, RefreshCw, CheckCircle, Map, 
-  ChevronDown, ChevronUp, Search, BarChart3, Brain, MessageCircle, Calendar 
+  Compass, Loader2, Sparkles, RefreshCw, CheckCircle, 
+  ChevronUp, Search, BarChart3, Brain, MessageCircle, Calendar,
+  Edit3, Rocket
 } from 'lucide-react';
 
 interface RoadmapStage {
@@ -120,162 +121,184 @@ const CareerGoal = () => {
 
   return (
     <div className="animate-fade-in space-y-6">
-      {/* Career Goal Card - Sticky Header with Glassmorphism */}
-      <div className={`sticky top-0 z-10 transition-all duration-300 ${!isGoalExpanded ? 'py-2' : ''}`}>
-        <div className="rounded-2xl bg-white/80 backdrop-blur-lg shadow-lg border border-gray-100 overflow-hidden">
+      {/* Hero Card - Career Goal Display (when roadmap exists) */}
+      {roadmapData && !isGoalExpanded && (
+        <div className="bg-gradient-to-br from-primary-500 via-primary-600 to-primary-700 rounded-3xl p-6 text-white shadow-soft-lg animate-fade-in-up">
+          <div className="flex items-start justify-between">
+            <div className="flex items-center gap-4">
+              <div className="p-3 bg-white/20 rounded-2xl backdrop-blur-sm">
+                <Compass className="h-8 w-8" />
+              </div>
+              <div>
+                <p className="text-sm text-white/80 mb-1">{t('career.yourGoal') || 'Your career goal'}</p>
+                <h1 className="text-2xl font-bold">{roadmapData.careerGoal}</h1>
+                {roadmapData?.saved && (
+                  <span className="inline-flex items-center gap-1 text-xs font-medium text-white/90 bg-white/20 px-2 py-1 rounded-full mt-2">
+                    <CheckCircle className="h-3 w-3" />
+                    {t('career.saved') || 'Saved to your profile'}
+                  </span>
+                )}
+              </div>
+            </div>
+            <button
+              onClick={() => setIsGoalExpanded(true)}
+              className="p-2.5 bg-white/20 hover:bg-white/30 rounded-xl transition-colors"
+              title={t('career.editGoal') || 'Edit goal'}
+            >
+              <Edit3 className="h-5 w-5" />
+            </button>
+          </div>
+          {/* Mini Progress */}
+          <div className="mt-5">
+            <div className="flex items-center justify-between text-sm mb-2">
+              <span className="text-white/80">{t('career.progress') || 'Your progress'}</span>
+              <span className="font-medium">{completedStages.size} / {roadmapData.stages.length} {t('career.stepsComplete') || 'steps'}</span>
+            </div>
+            <div className="h-2 bg-white/20 rounded-full overflow-hidden">
+              <div
+                className="h-full bg-white rounded-full transition-all duration-500"
+                style={{ width: `${progress}%` }}
+              />
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Goal Form Card - Collapsible */}
+      <div className={`transition-all duration-300 ${roadmapData && !isGoalExpanded ? 'hidden' : ''}`}>
+        <div className="rounded-3xl bg-white shadow-card border border-surface-200 overflow-hidden">
           {/* Header */}
-          <div 
-            className="flex items-center justify-between p-4 cursor-pointer hover:bg-gray-50/50 transition-colors"
-            onClick={() => setIsGoalExpanded(!isGoalExpanded)}
-          >
-            <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-primary-500 to-primary-600 text-white">
-                <Target className="h-5 w-5" />
+          {roadmapData && (
+            <div 
+              className="flex items-center justify-between p-5 cursor-pointer hover:bg-surface-50 transition-colors border-b border-surface-100"
+              onClick={() => setIsGoalExpanded(!isGoalExpanded)}
+            >
+              <div className="flex items-center gap-3">
+                <div className="p-2.5 bg-gradient-to-br from-primary-100 to-primary-50 rounded-xl">
+                  <Compass className="h-5 w-5 text-primary-500" />
+                </div>
+                <div>
+                  <h2 className="font-semibold text-text-primary">{t('career.changeGoal') || 'Change your goal'}</h2>
+                  <p className="text-sm text-text-muted">{t('career.currentGoal') || 'Currently:'} {roadmapData.careerGoal}</p>
+                </div>
               </div>
-              <div>
-                <h2 className="font-semibold text-gray-900">
-                  {roadmapData ? 'Your Career Goal' : 'Set Your Career Goal'}
-                </h2>
-                {roadmapData && !isGoalExpanded && (
-                  <p className="text-sm text-primary-600 font-medium">{roadmapData.careerGoal}</p>
-                )}
+              <ChevronUp className="h-5 w-5 text-text-muted" />
+            </div>
+          )}
+
+          {/* Form */}
+          <form onSubmit={handleSubmit} className="p-6 space-y-5">
+            {/* Career Input */}
+            <div>
+              <label className="block text-sm font-medium text-text-primary mb-2">
+                {t('career.whatGoal') || 'What do you want to become?'}
+              </label>
+              <div className="relative">
+                <Sparkles className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-primary-400" />
+                <input
+                  type="text"
+                  value={careerGoal}
+                  onChange={(e) => setCareerGoal(e.target.value)}
+                  placeholder={t('career.placeholder') || 'e.g., Software Developer, Data Scientist...'}
+                  className="w-full rounded-2xl bg-surface-50 border border-surface-200 py-4 pl-12 pr-4 text-text-primary placeholder-text-muted focus:border-primary-400 focus:bg-white focus:outline-none focus:ring-4 focus:ring-primary-100/50 transition-all"
+                />
               </div>
             </div>
-            <div className="flex items-center gap-2">
-              {roadmapData?.saved && (
-                <span className="flex items-center gap-1 text-xs font-medium text-green-600 bg-green-50 px-2 py-1 rounded-full">
-                  <CheckCircle className="h-3 w-3" />
-                  Saved
-                </span>
-              )}
-              {isGoalExpanded ? (
-                <ChevronUp className="h-5 w-5 text-gray-400" />
+
+            {/* Popular Careers */}
+            <div>
+              <label className="block text-xs font-medium text-text-muted mb-3 uppercase tracking-wide">
+                {t('career.popularChoices') || 'Popular choices'}
+              </label>
+              <div className="flex flex-wrap gap-2">
+                {popularCareers.map((career) => (
+                  <button
+                    key={career}
+                    type="button"
+                    onClick={() => selectCareer(career)}
+                    className={`rounded-full px-4 py-2 text-sm font-medium transition-all duration-200 ${
+                      careerGoal === career
+                        ? 'bg-primary-500 text-white shadow-button'
+                        : 'bg-surface-100 text-text-secondary hover:bg-surface-200 hover:scale-[1.02]'
+                    }`}
+                  >
+                    {career}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Skill Level */}
+            <div>
+              <label className="block text-xs font-medium text-text-muted mb-3 uppercase tracking-wide">
+                {t('career.skillLevel') || 'Your current level'}
+              </label>
+              <div className="grid grid-cols-3 gap-3">
+                {[
+                  { value: 'beginner', label: t('career.beginner') || 'Beginner', icon: '🌱' },
+                  { value: 'intermediate', label: t('career.intermediate') || 'Intermediate', icon: '🌿' },
+                  { value: 'advanced', label: t('career.advanced') || 'Advanced', icon: '🌳' }
+                ].map((level) => (
+                  <button
+                    key={level.value}
+                    type="button"
+                    onClick={() => setSkillLevel(level.value)}
+                    className={`rounded-xl border-2 py-3 text-sm font-medium transition-all duration-200 ${
+                      skillLevel === level.value
+                        ? 'border-primary-500 bg-primary-50 text-primary-700 shadow-soft'
+                        : 'border-surface-200 text-text-secondary hover:border-surface-300'
+                    }`}
+                  >
+                    <span className="text-lg mr-1">{level.icon}</span> {level.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Error */}
+            {error && (
+              <div className="rounded-xl bg-red-50 border border-red-100 p-4 text-sm text-red-700 flex items-center gap-2">
+                <span className="text-red-500">⚠️</span>
+                {error}
+              </div>
+            )}
+
+            {/* Submit */}
+            <button
+              type="submit"
+              disabled={loading || !careerGoal.trim()}
+              className="w-full flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-primary-500 to-primary-600 py-4 font-medium text-white hover:from-primary-600 hover:to-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-button hover:shadow-lg hover:scale-[1.01]"
+            >
+              {loading ? (
+                <>
+                  <Loader2 className="h-5 w-5 animate-spin" />
+                  {t('career.creating') || 'Creating your roadmap...'}
+                </>
+              ) : roadmapData ? (
+                <>
+                  <RefreshCw className="h-5 w-5" />
+                  {t('career.regenerate') || 'Create New Roadmap'}
+                </>
               ) : (
-                <ChevronDown className="h-5 w-5 text-gray-400" />
+                <>
+                  <Rocket className="h-5 w-5" />
+                  {t('career.createRoadmap') || 'Create My Roadmap'}
+                </>
               )}
-            </div>
-          </div>
-
-          {/* Expandable Form */}
-          <div className={`transition-all duration-300 ease-in-out overflow-hidden ${
-            isGoalExpanded ? 'max-h-[800px] opacity-100' : 'max-h-0 opacity-0'
-          }`}>
-            <form onSubmit={handleSubmit} className="p-4 pt-0 space-y-4">
-              {/* Career Input */}
-              <div>
-                <div className="relative">
-                  <Sparkles className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
-                  <input
-                    type="text"
-                    value={careerGoal}
-                    onChange={(e) => setCareerGoal(e.target.value)}
-                    placeholder={t('career.placeholder')}
-                    className="w-full rounded-xl border border-gray-200 py-3 pl-12 pr-4 text-gray-900 placeholder-gray-400 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-100"
-                  />
-                </div>
-              </div>
-
-              {/* Popular Careers */}
-              <div>
-                <label className="block text-xs font-medium text-gray-500 mb-2 uppercase tracking-wide">
-                  Popular choices
-                </label>
-                <div className="flex flex-wrap gap-2">
-                  {popularCareers.map((career) => (
-                    <button
-                      key={career}
-                      type="button"
-                      onClick={() => selectCareer(career)}
-                      className={`rounded-full px-3 py-1.5 text-xs font-medium transition-all ${
-                        careerGoal === career
-                          ? 'bg-primary-600 text-white shadow-md'
-                          : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                      }`}
-                    >
-                      {career}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Skill Level */}
-              <div>
-                <label className="block text-xs font-medium text-gray-500 mb-2 uppercase tracking-wide">
-                  Skill level
-                </label>
-                <div className="grid grid-cols-3 gap-2">
-                  {['beginner', 'intermediate', 'advanced'].map((level) => (
-                    <button
-                      key={level}
-                      type="button"
-                      onClick={() => setSkillLevel(level)}
-                      className={`rounded-lg border py-2 text-sm font-medium capitalize transition-all ${
-                        skillLevel === level
-                          ? 'border-primary-500 bg-primary-50 text-primary-700'
-                          : 'border-gray-200 text-gray-600 hover:border-gray-300'
-                      }`}
-                    >
-                      {level}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Error */}
-              {error && (
-                <div className="rounded-lg bg-red-50 p-3 text-sm text-red-700">
-                  {error}
-                </div>
-              )}
-
-              {/* Submit */}
-              <button
-                type="submit"
-                disabled={loading || !careerGoal.trim()}
-                className="w-full flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-primary-600 to-primary-700 py-3 font-medium text-white hover:from-primary-700 hover:to-primary-800 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-md"
-              >
-                {loading ? (
-                  <>
-                    <Loader2 className="h-5 w-5 animate-spin" />
-                    {t('career.loading')}
-                  </>
-                ) : roadmapData ? (
-                  <>
-                    <RefreshCw className="h-5 w-5" />
-                    Regenerate Roadmap
-                  </>
-                ) : (
-                  <>
-                    {t('career.submit')}
-                    <ArrowRight className="h-5 w-5" />
-                  </>
-                )}
-              </button>
-            </form>
-          </div>
+            </button>
+          </form>
         </div>
       </div>
 
       {/* Roadmap Section */}
       {roadmapData?.stages?.length ? (
         <div className="space-y-4 animate-fade-in">
-          {/* Progress Bar */}
-          <div className="rounded-2xl bg-white/80 backdrop-blur-lg shadow-md border border-gray-100 p-4">
-            <div className="flex items-center justify-between mb-3">
-              <div className="flex items-center gap-2">
-                <Map className="h-5 w-5 text-primary-600" />
-                <span className="font-semibold text-gray-900">Your Learning Roadmap</span>
-              </div>
-              <span className="text-sm font-medium text-primary-600">
-                {completedStages.size} / {roadmapData.stages.length} completed
-              </span>
+          {/* Section Title */}
+          <div className="flex items-center gap-3 mb-2">
+            <div className="p-2 bg-primary-100 rounded-xl">
+              <Compass className="h-5 w-5 text-primary-500" />
             </div>
-            <div className="h-2 rounded-full bg-gray-100 overflow-hidden">
-              <div
-                className="h-full rounded-full bg-gradient-to-r from-primary-500 to-primary-600 transition-all duration-500 ease-out"
-                style={{ width: `${progress}%` }}
-              />
-            </div>
+            <h2 className="text-lg font-semibold text-text-primary">{t('career.yourRoadmap') || 'Your Learning Path'}</h2>
           </div>
 
           {/* Stages */}
@@ -317,7 +340,7 @@ const CareerGoal = () => {
                 onClick={() => setIsGoalExpanded(true)}
                 className="flex flex-col items-center gap-2 p-4 rounded-xl bg-gradient-to-br from-primary-50 to-primary-100 hover:from-primary-100 hover:to-primary-200 border border-primary-200 transition-all group"
               >
-                <Target className="h-6 w-6 text-primary-600 group-hover:scale-110 transition-transform" />
+                <Compass className="h-6 w-6 text-primary-600 group-hover:scale-110 transition-transform" />
                 <span className="text-sm font-medium text-primary-700">{t('career.newGoal')}</span>
               </button>
               <button
