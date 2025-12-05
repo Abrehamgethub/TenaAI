@@ -19,6 +19,7 @@
   "author": "QineGuide Team",
   "license": "MIT",
   "dependencies": {
+    "@google-cloud/text-to-speech": "^6.4.0",
     "@google/generative-ai": "^0.21.0",
     "cors": "^2.8.5",
     "dotenv": "^16.3.1",

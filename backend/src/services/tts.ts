@@ -1,15 +1,19 @@
 import { logger } from './logger';
+import { TextToSpeechClient } from '@google-cloud/text-to-speech';
 
-const GOOGLE_TTS_API_KEY = process.env.GOOGLE_TTS_API_KEY;
-const GOOGLE_TTS_URL = 'https://texttospeech.googleapis.com/v1/text:synthesize';
+// Use Google Cloud TTS client (uses default credentials in Cloud Run)
+let ttsClient: TextToSpeechClient | null = null;
+
+const getTTSClient = (): TextToSpeechClient => {
+  if (!ttsClient) {
+    ttsClient = new TextToSpeechClient();
+  }
+  return ttsClient;
+};
 
 interface TTSRequest {
   text: string;
   language: 'am' | 'en' | 'om';
-}
-
-interface GoogleTTSResponse {
-  audioContent: string; // Base64 encoded audio
 }
 
 // Language to voice mapping
@@ -44,47 +48,36 @@ export const ttsService = {
    * Convert text to speech using Google Cloud TTS
    */
   async synthesize({ text, language }: TTSRequest): Promise<string> {
-    if (!GOOGLE_TTS_API_KEY) {
-      throw new Error('Google TTS API key not configured');
-    }
-
     const voiceConfig = VOICE_CONFIG[language] || VOICE_CONFIG.en;
 
     try {
       logger.info(`TTS request for language: ${language}, text length: ${text.length}`);
 
-      const response = await fetch(
-        `${GOOGLE_TTS_URL}?key=${GOOGLE_TTS_API_KEY}`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            input: { text },
-            voice: {
-              languageCode: voiceConfig.languageCode,
-              name: voiceConfig.name,
-              ssmlGender: voiceConfig.ssmlGender,
-            },
-            audioConfig: {
-              audioEncoding: 'MP3',
-              speakingRate: 0.9,
-              pitch: 0,
-            },
-          }),
-        }
-      );
+      const client = getTTSClient();
+      
+      const [response] = await client.synthesizeSpeech({
+        input: { text },
+        voice: {
+          languageCode: voiceConfig.languageCode,
+          name: voiceConfig.name,
+          ssmlGender: voiceConfig.ssmlGender as 'FEMALE' | 'MALE' | 'NEUTRAL',
+        },
+        audioConfig: {
+          audioEncoding: 'MP3',
+          speakingRate: 0.9,
+          pitch: 0,
+        },
+      });
 
-      if (!response.ok) {
-        const errorData = await response.text();
-        logger.error('TTS API error:', errorData);
-        throw new Error('TTS API request failed');
+      if (!response.audioContent) {
+        throw new Error('No audio content received');
       }
 
-      const data = await response.json() as GoogleTTSResponse;
+      // Convert Buffer/Uint8Array to base64
+      const audioContent = Buffer.from(response.audioContent).toString('base64');
+      
       logger.info('TTS synthesis successful');
-      return data.audioContent;
+      return audioContent;
     } catch (error: any) {
       logger.error('TTS synthesis failed:', error.message);
       throw new Error('Failed to synthesize speech');
