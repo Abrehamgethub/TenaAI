@@ -195,20 +195,27 @@ const DailyCoach = () => {
               >
                 <div className="flex items-start gap-4">
                   {/* Completion Toggle - Checkbox that can be checked AND unchecked */}
-                  <button
-                    onClick={() => toggleTask(task.id)}
-                    disabled={completingTask === task.id}
-                    className="mt-1 flex-shrink-0"
-                    title={task.completed ? t('dailyCoach.markIncomplete') : t('dailyCoach.markComplete')}
-                  >
+                  <div className="mt-1 flex-shrink-0 relative">
                     {completingTask === task.id ? (
                       <div className="h-6 w-6 border-2 border-primary-300 border-t-primary-600 rounded-full animate-spin" />
-                    ) : task.completed ? (
-                      <CheckCircle className="h-6 w-6 text-green-500 hover:text-green-600 transition-colors cursor-pointer" />
                     ) : (
-                      <Circle className="h-6 w-6 text-gray-300 hover:text-primary-500 transition-colors cursor-pointer" />
+                      <label className="cursor-pointer flex items-center">
+                        <input
+                          type="checkbox"
+                          checked={task.completed}
+                          onChange={() => toggleTask(task.id)}
+                          disabled={completingTask === task.id}
+                          className="sr-only"
+                          aria-label={task.completed ? t('dailyCoach.markIncomplete') : t('dailyCoach.markComplete')}
+                        />
+                        {task.completed ? (
+                          <CheckCircle className="h-6 w-6 text-green-500 hover:text-green-600 transition-colors" />
+                        ) : (
+                          <Circle className="h-6 w-6 text-gray-300 hover:text-primary-500 transition-colors" />
+                        )}
+                      </label>
                     )}
-                  </button>
+                  </div>
 
                   {/* Task Content */}
                   <div className="flex-1 min-w-0">

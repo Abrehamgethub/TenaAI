@@ -1,4 +1,5 @@
-import { User, Bot } from 'lucide-react';
+import { User } from 'lucide-react';
+import AiMentorAvatar from './AiMentorAvatar';
 
 interface ChatBubbleProps {
   role: 'user' | 'assistant';
@@ -12,13 +13,15 @@ const ChatBubble = ({ role, content, timestamp }: ChatBubbleProps) => {
   return (
     <div className={`flex gap-3 ${isUser ? 'flex-row-reverse' : ''}`}>
       {/* Avatar */}
-      <div
-        className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full ${
-          isUser ? 'bg-primary-100 text-primary-600' : 'bg-gray-100 text-gray-600'
-        }`}
-      >
-        {isUser ? <User className="h-4 w-4" /> : <Bot className="h-4 w-4" />}
-      </div>
+      {isUser ? (
+        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary-100 text-primary-600">
+          <User className="h-4 w-4" />
+        </div>
+      ) : (
+        <div className="h-8 w-8 shrink-0 rounded-full overflow-hidden">
+          <AiMentorAvatar className="h-8 w-8" />
+        </div>
+      )}
 
       {/* Message */}
       <div className={`flex max-w-[80%] flex-col ${isUser ? 'items-end' : 'items-start'}`}>

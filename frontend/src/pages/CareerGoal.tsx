@@ -72,11 +72,11 @@ const CareerGoal = () => {
     setLoading(true);
 
     try {
-      const response = await roadmapApi.generate(careerGoal, skillLevel, language);
+      const response = await roadmapApi.generate(careerGoal.trim(), skillLevel, language);
       
-      if (response.success && response.data) {
+      if (response.success && response.data && response.data.roadmap) {
         const newRoadmapData = {
-          careerGoal,
+          careerGoal: careerGoal.trim(),
           stages: response.data.roadmap,
           saved: response.data.saved,
         };
@@ -85,11 +85,14 @@ const CareerGoal = () => {
         setRoadmapData(newRoadmapData);
         setCompletedStages(new Set());
         setIsGoalExpanded(false);
+        setError('');
       } else {
-        setError(response.error || 'Failed to generate roadmap');
+        setError(response.error || t('roadmap.generateError'));
       }
-    } catch (err) {
-      setError('Failed to generate roadmap. Please try again.');
+    } catch (err: unknown) {
+      console.error('Roadmap generation error:', err);
+      const errorMessage = err instanceof Error ? err.message : t('roadmap.generateError');
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }

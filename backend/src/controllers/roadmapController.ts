@@ -13,10 +13,38 @@ export const roadmapController = {
       const { careerGoal, currentSkillLevel, preferredLanguage } = req.body as RoadmapRequest;
       const uid = req.user?.uid;
 
+      // Validate input
+      if (!careerGoal || careerGoal.trim().length < 3) {
+        res.status(400).json({
+          success: false,
+          error: 'Career goal is required and must be at least 3 characters',
+        });
+        return;
+      }
+
       logger.info(`Generating roadmap for career: ${careerGoal}`, { uid });
 
-      // Generate roadmap using Gemini
-      const stages = await geminiService.generateRoadmap(careerGoal, currentSkillLevel);
+      // Generate roadmap using Gemini with safe error handling
+      let stages;
+      try {
+        stages = await geminiService.generateRoadmap(careerGoal.trim(), currentSkillLevel || 'beginner');
+      } catch (genError) {
+        logger.error('Gemini generation error:', genError);
+        res.status(500).json({
+          success: false,
+          error: 'AI service temporarily unavailable. Please try again.',
+        });
+        return;
+      }
+
+      // Validate generated stages
+      if (!stages || !Array.isArray(stages) || stages.length === 0) {
+        res.status(500).json({
+          success: false,
+          error: 'Failed to generate valid roadmap stages. Please try again.',
+        });
+        return;
+      }
 
       let savedRoadmap: Roadmap | null = null;
 

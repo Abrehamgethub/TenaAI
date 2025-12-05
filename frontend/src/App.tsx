@@ -17,6 +17,8 @@ import Profile from './pages/Profile';
 import Analytics from './pages/Analytics';
 import DailyCoach from './pages/DailyCoach';
 import Quiz from './pages/Quiz';
+import Help from './pages/Help';
+import Membership from './pages/Membership';
 
 function App() {
   return (
@@ -100,6 +102,22 @@ function App() {
                 element={
                   <ProtectedRoute>
                     <Quiz />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/help"
+                element={
+                  <ProtectedRoute>
+                    <Help />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/membership"
+                element={
+                  <ProtectedRoute>
+                    <Membership />
                   </ProtectedRoute>
                 }
               />

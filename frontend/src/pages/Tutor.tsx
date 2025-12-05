@@ -11,6 +11,7 @@ import ChatHistorySidebar from '../components/ChatHistorySidebar';
 import { useSpeechRecognition } from '../hooks/useSpeechRecognition';
 import { useTextToSpeech } from '../hooks/useTextToSpeech';
 import { Send, Loader2, MessageCircle, Trash2, Volume2, VolumeX, History } from 'lucide-react';
+import AiMentorAvatar from '../components/AiMentorAvatar';
 
 interface Message {
   id: string;
@@ -250,8 +251,8 @@ const Tutor = () => {
         <div className="flex-1 overflow-y-auto rounded-xl border border-gray-200 bg-white p-4">
           {messages.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full text-center">
-              <div className="h-16 w-16 rounded-full bg-primary-100 flex items-center justify-center text-primary-600 mb-4">
-                <MessageCircle className="h-8 w-8" />
+              <div className="h-20 w-20 rounded-full overflow-hidden mb-4 shadow-lg">
+                <AiMentorAvatar className="h-20 w-20" />
               </div>
               <h3 className="text-lg font-medium text-gray-900 mb-2">Start a conversation</h3>
               <p className="text-gray-500 max-w-sm">

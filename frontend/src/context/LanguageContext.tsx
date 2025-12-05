@@ -26,6 +26,12 @@ const translations: Record<Language, Record<string, string>> = {
     'nav.opportunities': 'Opportunities',
     'nav.profile': 'Profile',
     'nav.logout': 'Logout',
+    'nav.dailyCoach': 'Daily Coach',
+    'nav.quiz': 'Quiz',
+    'nav.mentors': 'Find Mentors',
+    'nav.analytics': 'Analytics',
+    'nav.help': 'Help / FAQ',
+    'nav.membership': 'Become a Member',
 
     // Landing
     'landing.title': 'Your AI-Powered Learning Partner',
@@ -45,6 +51,8 @@ const translations: Record<Language, Record<string, string>> = {
     'roadmap.stage': 'Stage',
     'roadmap.resources': 'Resources',
     'roadmap.save': 'Save Roadmap',
+    'roadmap.generateError': 'Failed to generate roadmap. Please try again.',
+    'roadmap.generating': 'Generating your personalized roadmap...',
 
     // Tutor
     'tutor.title': 'AI Tutor',
@@ -89,6 +97,35 @@ const translations: Record<Language, Record<string, string>> = {
     'dailyCoach.testUnderstanding': 'Test your understanding with',
     'dailyCoach.questions': 'quick questions',
     'dailyCoach.startQuiz': 'Start Quiz',
+    'dailyCoach.markComplete': 'Mark as complete',
+    'dailyCoach.markIncomplete': 'Mark as incomplete',
+    'dailyCoach.oneHour': '1 Hour',
+    'dailyCoach.dailyTime': 'Daily learning time',
+
+    // Help & FAQ
+    'help.title': 'Help & FAQ',
+    'help.subtitle': 'Everything you need to know about QineGuide',
+    'help.navigation': 'How to Navigate QineGuide',
+    'help.navigationDesc': 'Use the sidebar menu to access all features. On mobile, tap the menu icon to open navigation.',
+    'help.roadmap': 'How Roadmap Works',
+    'help.roadmapDesc': 'Set your career goal and AI will generate a personalized learning path with stages, resources, and skills to learn.',
+    'help.dailyCoach': 'How Daily Coach Works',
+    'help.dailyCoachDesc': 'Every day you get 1 hour of personalized learning tasks. Complete tasks to build your streak and track progress.',
+    'help.aiTutor': 'How to Use AI Tutor',
+    'help.aiTutorDesc': 'Ask any question about your career path, coding, or learning. The AI tutor responds in your preferred language.',
+    'help.language': 'How to Change Language',
+    'help.languageDesc': 'Click the language selector in the sidebar or header to switch between English, Amharic, Oromiffa, Tigrigna, and Somali.',
+    'help.membership': 'How to Become a Member',
+    'help.membershipDesc': 'Click "Become a Member" to unlock premium features including advanced AI tutoring and priority support.',
+    'help.faq': 'Frequently Asked Questions',
+    'help.faqDailyReset': 'Why does Daily Coach reset every day?',
+    'help.faqDailyResetAnswer': 'Daily Coach creates fresh tasks each day to ensure consistent learning. Your completed tasks contribute to your streak.',
+    'help.faqRoadmapGenerated': 'How is my roadmap generated?',
+    'help.faqRoadmapGeneratedAnswer': 'AI analyzes your career goal and skill level to create a personalized multi-stage learning path with curated resources.',
+    'help.faqAiDifferent': 'Why does AI Tutor give different answers?',
+    'help.faqAiDifferentAnswer': 'AI generates contextual responses based on your question. Each answer is tailored to your specific query and learning context.',
+    'help.faqLinkedinSearch': 'Why does mentor LinkedIn open a search page?',
+    'help.faqLinkedinSearchAnswer': 'We use LinkedIn search to help you find the mentor profile, as direct links may change or become unavailable.',
 
     // Analytics
     'analytics.title': 'Learning Analytics',
@@ -181,12 +218,6 @@ const translations: Record<Language, Record<string, string>> = {
     'opportunities.location': 'Location',
     'opportunities.apply': 'Apply Now',
     'opportunities.learnMore': 'Learn More',
-
-    // Extended Daily Coach
-    'dailyCoach.oneHour': '1 hour',
-    'dailyCoach.dailyTime': 'Daily learning time',
-    'dailyCoach.markComplete': 'Mark as complete',
-    'dailyCoach.markIncomplete': 'Mark as incomplete',
 
     // Career Goal Extended
     'career.yourGoal': 'Your Career Goal',

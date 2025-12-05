@@ -14,6 +14,8 @@ import {
   Calendar,
   Brain,
   Users,
+  HelpCircle,
+  Crown,
 } from 'lucide-react';
 import { useState } from 'react';
 import LanguageSelector from './LanguageSelector';
@@ -33,12 +35,13 @@ const Layout = () => {
 
   const navItems = [
     { path: '/career-goal', icon: Target, label: t('nav.career') },
-    { path: '/daily-coach', icon: Calendar, label: 'Daily Coach' },
+    { path: '/daily-coach', icon: Calendar, label: t('nav.dailyCoach') },
     { path: '/tutor', icon: MessageCircle, label: t('nav.tutor') },
-    { path: '/quiz', icon: Brain, label: 'Quiz' },
+    { path: '/quiz', icon: Brain, label: t('nav.quiz') },
     { path: '/opportunities', icon: Briefcase, label: t('nav.opportunities') },
-    { path: '/mentors', icon: Users, label: 'Find Mentors' },
-    { path: '/analytics', icon: BarChart3, label: 'Analytics' },
+    { path: '/mentors', icon: Users, label: t('nav.mentors') },
+    { path: '/analytics', icon: BarChart3, label: t('nav.analytics') },
+    { path: '/help', icon: HelpCircle, label: t('nav.help') },
     { path: '/profile', icon: User, label: t('nav.profile') },
   ];
 
@@ -82,6 +85,14 @@ const Layout = () => {
 
           {/* User section */}
           <div className="border-t border-gray-200 p-4">
+            {/* Become a Member Button */}
+            <Link
+              to="/membership"
+              className="mb-4 flex items-center justify-center gap-2 w-full bg-gradient-to-r from-yellow-400 to-amber-500 text-white px-4 py-2.5 rounded-lg font-medium hover:from-yellow-500 hover:to-amber-600 transition-all shadow-sm"
+            >
+              <Crown className="h-4 w-4" />
+              {t('nav.membership')}
+            </Link>
             <div className="mb-4">
               <LanguageSelector />
             </div>
